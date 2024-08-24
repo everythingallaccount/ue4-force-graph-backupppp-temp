@@ -9,6 +9,80 @@
 #define print(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 10, FColor::White,text)
 
 
+void AKnowledgeGraph::InitNodes()
+{
+	for (auto& node : all_nodes)
+	{
+		float radius = initialRadius * sqrt(node.Key);
+		float angle = node.Key * initialAngle;
+		FVector init_pos = FVector(cos(angle), sin(angle), tan(angle)) * radius;
+
+		// Remember that the note value stored the actual object. 
+		node.Value->SetActorLocation(init_pos, false);
+		//        print("init position");
+		//        print(node.Value->GetActorLocation().ToString());
+		node.Value->velocity = FVector(0, 0, 0);
+	}
+}
+
+void AKnowledgeGraph::InitOctree(const FBox& inNewBounds)
+{
+	//OctreeData = new FSimpleOctree(FVector(0.0f, 0.0f, 0.0f), 100.0f);
+	OctreeData = new FSimpleOctree(inNewBounds.GetCenter(), inNewBounds.GetExtent().GetMax());
+}
+
+void AKnowledgeGraph::InitForces()
+{
+	//link forces
+	float n = all_nodes.Num();
+	float m = all_links.Num();
+
+	for (auto& link : all_links)
+	{
+		all_nodes[link.Value->source]->numberOfConnected += 1;
+		all_nodes[link.Value->target]->numberOfConnected += 1;
+	}
+
+	for (auto& link : all_links)
+	{
+		float bias = all_nodes[link.Value->source]->numberOfConnected /
+		(
+			all_nodes[link.Value->source]->numberOfConnected +
+			all_nodes[link.Value->target]->numberOfConnected
+		);
+
+		if (1)
+		{
+			link.Value->bias = bias > 0.5 ? (1 - bias) * 0.5 + bias : bias * 0.5;
+		}
+		else
+		{
+			link.Value->bias = bias;
+		}
+
+
+		link.Value->strength = 1.0 / fmin(all_nodes[link.Value->source]->numberOfConnected,
+										  all_nodes[link.Value->target]->numberOfConnected);
+	}
+
+	//charge forces
+	for (auto& node : all_nodes)
+	{
+		node.Value->strength = node.Value->strength; // nothing for now
+	}
+
+	//center forces
+	//nothing
+	init = true;
+}
+
+void AKnowledgeGraph::RemoveElement(int key)
+{
+	OctreeData->RemoveElement(OctreeData->all_elements[key]);
+	all_nodes.Remove(key);
+}
+
+
 
 void AKnowledgeGraph::AddOctreeElement(const FOctreeElement& inNewOctreeElement)
 {
@@ -290,80 +364,6 @@ void AKnowledgeGraph::BeginPlay()
 		InitNodes();
 		InitForces();
 	}
-}
-
-
-void AKnowledgeGraph::InitNodes()
-{
-	for (auto& node : all_nodes)
-	{
-		float radius = initialRadius * sqrt(node.Key);
-		float angle = node.Key * initialAngle;
-		FVector init_pos = FVector(cos(angle), sin(angle), tan(angle)) * radius;
-
-		// Remember that the note value stored the actual object. 
-		node.Value->SetActorLocation(init_pos, false);
-		//        print("init position");
-		//        print(node.Value->GetActorLocation().ToString());
-		node.Value->velocity = FVector(0, 0, 0);
-	}
-}
-
-void AKnowledgeGraph::InitOctree(const FBox& inNewBounds)
-{
-	//OctreeData = new FSimpleOctree(FVector(0.0f, 0.0f, 0.0f), 100.0f);
-	OctreeData = new FSimpleOctree(inNewBounds.GetCenter(), inNewBounds.GetExtent().GetMax());
-}
-
-void AKnowledgeGraph::InitForces()
-{
-	//link forces
-	float n = all_nodes.Num();
-	float m = all_links.Num();
-
-	for (auto& link : all_links)
-	{
-		all_nodes[link.Value->source]->numberOfConnected += 1;
-		all_nodes[link.Value->target]->numberOfConnected += 1;
-	}
-
-	for (auto& link : all_links)
-	{
-		float bias = all_nodes[link.Value->source]->numberOfConnected /
-		(
-			all_nodes[link.Value->source]->numberOfConnected +
-			all_nodes[link.Value->target]->numberOfConnected
-		);
-
-		if (1)
-		{
-			link.Value->bias = bias > 0.5 ? (1 - bias) * 0.5 + bias : bias * 0.5;
-		}
-		else
-		{
-			link.Value->bias = bias;
-		}
-
-
-		link.Value->strength = 1.0 / fmin(all_nodes[link.Value->source]->numberOfConnected,
-		                                  all_nodes[link.Value->target]->numberOfConnected);
-	}
-
-	//charge forces
-	for (auto& node : all_nodes)
-	{
-		node.Value->strength = node.Value->strength; // nothing for now
-	}
-
-	//center forces
-	//nothing
-	init = true;
-}
-
-void AKnowledgeGraph::RemoveElement(int key)
-{
-	OctreeData->RemoveElement(OctreeData->all_elements[key]);
-	all_nodes.Remove(key);
 }
 
 
