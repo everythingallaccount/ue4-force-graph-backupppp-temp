@@ -8,6 +8,66 @@
 #include "SimulationSystem.h"
 #define print(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 10, FColor::White,text)
 
+
+
+void AKnowledgeGraph::AddOctreeElement(const FOctreeElement& inNewOctreeElement)
+{
+	OctreeData->AddElement(inNewOctreeElement);
+}
+
+void AKnowledgeGraph::AddNode(int32 id, AKnowledgeNode* kn, FVector location)
+{
+	if (!all_nodes.Contains(id))
+	{
+		kn->id = id;
+
+		kn->strength = nodeStrength;
+
+
+		all_nodes.Emplace(id, kn);
+
+		// Useless not used it. 
+		SimulationSystem->all_nodes.Emplace(id, kn);
+
+		FOctreeElement ote;
+		ote.MyActor = kn;
+		ote.strength = 1.0; // update with strength
+		ote.BoxSphereBounds = FBoxSphereBounds(location, FVector(1.0f, 1.0f, 1.0f), 1.0f);
+		AddOctreeElement(ote);
+	}
+}
+
+void AKnowledgeGraph::AddEdge(int32 id, int32 source, int32 target)
+{
+	UObject* SpawnClass = Cast<UObject>(
+		StaticLoadObject(UObject::StaticClass(),
+						 NULL,
+						 TEXT("Blueprint'/Game/cylinder.cylinder'")
+		)
+	);
+	UBlueprint* GeneratedObj = Cast<UBlueprint>(SpawnClass);
+
+
+	AKnowledgeEdge* e = GetWorld()->SpawnActor<AKnowledgeEdge>(
+		GeneratedObj->GeneratedClass
+	);
+
+	e->source = source;
+	e->target = target;
+	e->strength = 1; //temp
+	e->distance = edgeDistance;
+	all_links.Emplace(id, e);
+
+	// Useless not used it. 
+	SimulationSystem->all_links.Emplace(id, e);
+
+
+
+	UE_LOG(LogTemp, Warning, TEXT("SIMULATION SYSTEM LINKS: %d"), SimulationSystem->all_links.Num());
+}
+
+
+
 FSimpleOctree::FSimpleOctree(const FVector& InOrigin, float InExtent) : TOctree(InOrigin, InExtent)
 {
 }
@@ -232,62 +292,6 @@ void AKnowledgeGraph::BeginPlay()
 	}
 }
 
-
-void AKnowledgeGraph::AddNode(int32 id, AKnowledgeNode* kn, FVector location)
-{
-	if (!all_nodes.Contains(id))
-	{
-		kn->id = id;
-
-		kn->strength = nodeStrength;
-
-
-		all_nodes.Emplace(id, kn);
-
-		// Useless not used it. 
-		SimulationSystem->all_nodes.Emplace(id, kn);
-
-		FOctreeElement ote;
-		ote.MyActor = kn;
-		ote.strength = 1.0; // update with strength
-		ote.BoxSphereBounds = FBoxSphereBounds(location, FVector(1.0f, 1.0f, 1.0f), 1.0f);
-		AddOctreeElement(ote);
-	}
-}
-
-void AKnowledgeGraph::AddOctreeElement(const FOctreeElement& inNewOctreeElement)
-{
-	OctreeData->AddElement(inNewOctreeElement);
-}
-
-void AKnowledgeGraph::AddEdge(int32 id, int32 source, int32 target)
-{
-	UObject* SpawnClass = Cast<UObject>(
-		StaticLoadObject(UObject::StaticClass(),
-		                 NULL,
-		                 TEXT("Blueprint'/Game/cylinder.cylinder'")
-		)
-	);
-	UBlueprint* GeneratedObj = Cast<UBlueprint>(SpawnClass);
-
-
-	AKnowledgeEdge* e = GetWorld()->SpawnActor<AKnowledgeEdge>(
-		GeneratedObj->GeneratedClass
-	);
-
-	e->source = source;
-	e->target = target;
-	e->strength = 1; //temp
-	e->distance = edgeDistance;
-	all_links.Emplace(id, e);
-
-	// Useless not used it. 
-	SimulationSystem->all_links.Emplace(id, e);
-
-
-
-	UE_LOG(LogTemp, Warning, TEXT("SIMULATION SYSTEM LINKS: %d"), SimulationSystem->all_links.Num());
-}
 
 void AKnowledgeGraph::InitNodes()
 {
