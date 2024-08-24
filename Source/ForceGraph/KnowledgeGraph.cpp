@@ -23,7 +23,9 @@ AKnowledgeGraph::AKnowledgeGraph()
 	PrimaryActorTick.bCanEverTick = true;
 
 
-	// SimulationSystem = new FSimulationSystem(GetWorld());
+
+	// Useless not used it. 
+	SimulationSystem = new FSimulationSystem(GetWorld());
 }
 
 AKnowledgeGraph::~AKnowledgeGraph()
@@ -241,7 +243,9 @@ void AKnowledgeGraph::AddNode(int32 id, AKnowledgeNode* kn, FVector location)
 
 
 		all_nodes.Emplace(id, kn);
-		// SimulationSystem->all_nodes.Emplace(id, kn);
+
+		// Useless not used it. 
+		SimulationSystem->all_nodes.Emplace(id, kn);
 
 		FOctreeElement ote;
 		ote.MyActor = kn;
@@ -277,8 +281,11 @@ void AKnowledgeGraph::AddEdge(int32 id, int32 source, int32 target)
 	e->distance = edgeDistance;
 	all_links.Emplace(id, e);
 
+	// Useless not used it. 
+	SimulationSystem->all_links.Emplace(id, e);
 
-	// SimulationSystem->all_links.Emplace(id, e);
+
+
 	UE_LOG(LogTemp, Warning, TEXT("SIMULATION SYSTEM LINKS: %d"), SimulationSystem->all_links.Num());
 }
 
