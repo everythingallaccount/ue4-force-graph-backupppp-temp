@@ -116,7 +116,7 @@ public:
 	void ApplyManyBody(AKnowledgeNode* kn);
 	void FindManyBodyForce(AKnowledgeNode* kn, const FSimpleOctree::FNode& node,
 	                       const FOctreeNodeContext CurrentContext, FString node_id);
-	virtual void Tick(float DeltaTime) override;
+	
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
@@ -172,5 +172,10 @@ private:
 
 	FSimpleOctree* OctreeData;
 	FSimulationSystem* SimulationSystem;
+
+
+	// Called every frame
+public:
+	virtual void Tick(float DeltaTime) override;
 
 };
