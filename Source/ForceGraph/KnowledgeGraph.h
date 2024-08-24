@@ -136,6 +136,8 @@ public:
 	float alphaDecay = 1 - std::pow(alphaMin, 1.0 / 300);
 
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
+	int32 wayofinitnodeslinks = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
 	float edgeDistance = 5;
