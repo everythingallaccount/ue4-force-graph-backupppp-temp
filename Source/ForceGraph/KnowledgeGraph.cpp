@@ -9,6 +9,311 @@
 #define print(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 10, FColor::White,text)
 
 
+
+FVector Jiggle(const FVector& Vec, float Magnitude)
+{
+	FVector RandomJitter;
+	RandomJitter.X = FMath::RandRange(-0.5f, 0.5f) * Magnitude;
+	RandomJitter.Y = FMath::RandRange(-0.5f, 0.5f) * Magnitude;
+	RandomJitter.Z = FMath::RandRange(-0.5f, 0.5f) * Magnitude;
+
+	return Vec + RandomJitter;
+}
+
+void AKnowledgeGraph::ApplyForces()
+{
+	// In here velocity of all notes are zeroed
+	// In the following for loop, In the first few loop, the velocity is 0. 
+
+	// link forces
+	// After loop, the velocity of all notes have been altered a little bit because of the link force already. 
+	for (auto& link : all_links)
+	{
+		auto source_node = all_nodes[link.Value->source];
+		auto target_node = all_nodes[link.Value->target];
+
+		FVector source_pos = source_node->GetActorLocation();
+		FVector source_velocity = source_node->velocity;
+
+		FVector target_pos = target_node->GetActorLocation();
+		FVector target_velocity = target_node->velocity;
+
+		// UE_LOG(LogTemp, Warning, TEXT("source VELOCITY1: %s"), *source_velocity.ToString());
+		// UE_LOG(LogTemp, Warning, TEXT("target VELOCITY1: %s"), *target_velocity.ToString());
+
+
+		FVector new_v = target_pos + target_velocity - source_pos - source_velocity;
+
+
+		if (new_v.IsNearlyZero())
+		{
+			new_v = Jiggle(new_v, 1e-6f);
+		}
+
+		float l = new_v.Size();
+		// UE_LOG(LogTemp, Warning, TEXT("!!!link.Value->distance: %f"), link.Value->distance);
+
+
+		// By looking at the javascript code, we can see strength Will only be computed when there is a change to the graph.
+		l = (l - link.Value->distance) / l * alpha * link.Value->strength;
+		new_v *= l;
+
+
+		if (1)
+		{
+			target_node->velocity -= new_v * (1 - link.Value->bias);
+		}
+		else
+		{
+			target_node->velocity -= new_v * (link.Value->bias);
+		}
+
+		source_node->velocity += new_v * (link.Value->bias);
+
+		// if (target_node->id == 7 && alpha > 0.2)
+		// 	print("LINK VEL: " + (-1 * new_v * (1 - link.Value->bias)).ToString());
+		// if (source_node->id == 7 && alpha > 0.2)
+		// 	print("LINK VEL: " + (new_v * (1 - link.Value->bias)).ToString());
+	}
+
+	if (1)
+	{
+		//charge forces
+		octree_node_strengths.Empty();
+		for (auto& node : all_nodes)
+		{
+			int key = node.Key;
+			auto kn = node.Value;
+
+
+			// Because the actor location hasn't changed when we compute the link force, so These two lines could actually be put in the start of the function. 
+
+			// If they are remove here，then why we do AddOctreeElement(ote) in AddNode?
+			RemoveElement(node.Key); //need to remove then update with new location when adding
+
+			AddNode(key, kn, kn->GetActorLocation());
+		}
+
+
+		// Most of the questions come from here。 
+		Accumulate();
+
+
+		for (auto& node : all_nodes)
+		{
+			ApplyManyBody(node.Value);
+		}
+	}
+}
+
+NodeStrength AKnowledgeGraph::AddUpChildren(
+	const FSimpleOctree::FNode& node,
+	FString node_id
+)
+{
+	if (!octree_node_strengths.Contains(node_id))
+	{
+		octree_node_strengths.Emplace(node_id, NodeStrength());
+	}
+	else
+	{
+		//reset
+		octree_node_strengths[node_id].strength = 0;
+		octree_node_strengths[node_id].direction = FVector(0, 0, 0);
+	}
+
+	if (!node.IsLeaf())
+	{
+		int count = 0;
+		float c = 0.0;
+		float strength = 0.0;
+		float weight = 0.0;
+		FVector tempvec;
+
+
+		FOREACH_OCTREE_CHILD_NODE(ChildRef)
+		{
+			//go find the leaves
+			if (
+
+				// ChildRef is a special structure, but basically store a number from one to 7. 
+				node.HasChild(ChildRef)
+			)
+			{
+				NodeStrength ns = AddUpChildren(
+					*node.GetChild(ChildRef),
+					node_id + FString::FromInt(count)
+				);
+				//add up children
+				//math for vector and strength
+				c = abs(ns.strength);
+
+				// Typically should be a positive integer, so strength will be same as weight. 
+				strength += ns.strength;
+
+				weight += c;
+
+
+				tempvec += c * ns.direction;
+
+				count++;
+			}
+		}
+		octree_node_strengths[node_id].strength = strength; //hash of ID of node for map
+		octree_node_strengths[node_id].direction = tempvec / weight;
+	}
+	else
+	{
+		for (FSimpleOctree::ElementConstIt ElementIt(node.GetElementIt()); ElementIt; ++ElementIt)
+		{
+			//all the way down to elements
+			const FOctreeElement& Sample = *ElementIt;
+
+
+			// So basically we add up all the strength inside a leaf node
+			octree_node_strengths[node_id].strength += Sample.MyActor->strength;
+			// When we summing up all the actual locations as a vector, it seems that it take an average location. 
+			octree_node_strengths[node_id].direction += Sample.MyActor->GetActorLocation();
+		}
+	}
+
+	// octree_node_strengths[node_id].direction.ToString(); //?
+	return octree_node_strengths[node_id];
+}
+
+//get weights for every node before applying
+void AKnowledgeGraph::Accumulate()
+{
+	for (
+		FSimpleOctree::TConstIterator<> NodeIt(*OctreeData);
+		NodeIt.HasPendingNodes();
+		NodeIt.Advance()
+	)
+	{
+		const FSimpleOctree::FNode& CurrentNode = NodeIt.GetCurrentNode();
+		// UE_LOG(LogTemp, Warning, TEXT("Ready to add up children"));
+		AddUpChildren(CurrentNode, "0");
+		break;
+	}
+}
+
+//use nodes to find velocity
+void AKnowledgeGraph::FindManyBodyForce(
+	AKnowledgeNode* kn,
+	const FSimpleOctree::FNode& node,
+	const FOctreeNodeContext CurrentContext,
+	FString node_id)
+{
+	NodeStrength ns = octree_node_strengths[node_id];
+
+	//if no strength, ignore
+	//    if(ns.strength == 0)
+	//        return;
+
+	const FBoxCenterAndExtent& CurrentBounds = CurrentContext.Bounds;
+	FVector center = CurrentBounds.Center;
+	FVector width = CurrentBounds.Extent;
+	FVector dir = ns.direction - kn->GetActorLocation();
+
+	// Remember that direction is the sum of all the Actor locations of the elements in that note. 
+	float l = dir.Size() * dir.Size();
+
+	// if size of current box is less than distance between nodes
+	// This is used to stop recurring down the tree.
+	if (width.X * width.X / theta2 < l)
+	{
+		//        print("GOING IN HERE");
+		if (l < distancemax)
+		{
+			if (l < distancemin)
+				l = sqrt(distancemin * l);
+			if (kn->id == 7 && alpha > 0.2)
+				print((dir * ns.strength * alpha / l).ToString());
+			//print(FString::SanitizeFloat(ns.strength));
+			float mult = pow(ns.strength / nodeStrength, 1.0);
+			kn->velocity += dir * ns.strength * alpha / (l / 2.0) * mult;
+		}
+		return;
+	}
+
+	// if not leaf, get all children
+
+	// People do we have to check on L bigger than distance max?
+	// FOREACH_OCTREE_CHILD_NODE Will not run if the note is LeaF note. , even if L is bigger than distance max. 
+	if (!node.IsLeaf() || l >= distancemax)
+	{
+		//recurse down this dude
+		//        print("IM NO LEAF");
+		//print("NOT A LEAF");
+		int count = 0;
+		FOREACH_OCTREE_CHILD_NODE(ChildRef)
+		{
+			if (node.HasChild(ChildRef))
+			{
+				FindManyBodyForce(
+					kn,
+					*node.GetChild(ChildRef),
+					CurrentContext.GetChildContext(ChildRef),
+					node_id + FString::FromInt(count)
+				);
+				count++;
+			}
+		}
+	} //if leaf and close, apply elements directly
+	else if (node.IsLeaf())
+	{
+		//print("IM LEAF");
+		if (l < distancemin)
+		{
+			l = sqrt(distancemin * l);
+		}
+		for (FSimpleOctree::ElementConstIt ElementIt(node.GetElementIt()); ElementIt; ++ElementIt)
+		{
+			const FOctreeElement& Sample = *ElementIt;
+			if (Sample.MyActor->id != kn->id)
+			{
+				dir = Sample.MyActor->GetActorLocation() - kn->GetActorLocation();
+				l = dir.Size() * dir.Size();
+				float mult = pow(Sample.MyActor->numberOfConnected, 3.0);
+
+
+				if (0)
+				{
+					if (kn->id == 7 && alpha > 0.2)
+					{
+						print(FString::FromInt(Sample.MyActor->id));
+						print((dir * Sample.MyActor->strength * alpha / l * mult).ToString());
+					}
+				}
+
+				kn->velocity += dir * Sample.MyActor->strength * alpha / l * mult;
+			}
+		}
+	}
+}
+
+void AKnowledgeGraph::ApplyManyBody(AKnowledgeNode* kn)
+{
+	FVector dir;
+	if (alpha > 0.2 && kn->id == 7)
+		print("--------------------------------------");
+	for (
+		FSimpleOctree::TConstIterator<> NodeIt(*OctreeData);
+		NodeIt.HasPendingNodes();
+		NodeIt.Advance()
+	)
+	{
+		FindManyBodyForce(kn,
+		                  NodeIt.GetCurrentNode(),
+		                  NodeIt.GetCurrentContext(),
+		                  "0"
+		);
+		break;
+	}
+}
+
+
+
 void AKnowledgeGraph::InitNodes()
 {
 	for (auto& node : all_nodes)
@@ -366,308 +671,6 @@ void AKnowledgeGraph::BeginPlay()
 	}
 }
 
-
-FVector Jiggle(const FVector& Vec, float Magnitude)
-{
-	FVector RandomJitter;
-	RandomJitter.X = FMath::RandRange(-0.5f, 0.5f) * Magnitude;
-	RandomJitter.Y = FMath::RandRange(-0.5f, 0.5f) * Magnitude;
-	RandomJitter.Z = FMath::RandRange(-0.5f, 0.5f) * Magnitude;
-
-	return Vec + RandomJitter;
-}
-
-void AKnowledgeGraph::ApplyForces()
-{
-	// In here velocity of all notes are zeroed
-	// In the following for loop, In the first few loop, the velocity is 0. 
-
-	// link forces
-	// After loop, the velocity of all notes have been altered a little bit because of the link force already. 
-	for (auto& link : all_links)
-	{
-		auto source_node = all_nodes[link.Value->source];
-		auto target_node = all_nodes[link.Value->target];
-
-		FVector source_pos = source_node->GetActorLocation();
-		FVector source_velocity = source_node->velocity;
-
-		FVector target_pos = target_node->GetActorLocation();
-		FVector target_velocity = target_node->velocity;
-
-		// UE_LOG(LogTemp, Warning, TEXT("source VELOCITY1: %s"), *source_velocity.ToString());
-		// UE_LOG(LogTemp, Warning, TEXT("target VELOCITY1: %s"), *target_velocity.ToString());
-
-
-		FVector new_v = target_pos + target_velocity - source_pos - source_velocity;
-
-
-		if (new_v.IsNearlyZero())
-		{
-			new_v = Jiggle(new_v, 1e-6f);
-		}
-
-		float l = new_v.Size();
-		// UE_LOG(LogTemp, Warning, TEXT("!!!link.Value->distance: %f"), link.Value->distance);
-
-
-		// By looking at the javascript code, we can see strength Will only be computed when there is a change to the graph.
-		l = (l - link.Value->distance) / l * alpha * link.Value->strength;
-		new_v *= l;
-
-
-		if (1)
-		{
-			target_node->velocity -= new_v * (1 - link.Value->bias);
-		}
-		else
-		{
-			target_node->velocity -= new_v * (link.Value->bias);
-		}
-
-		source_node->velocity += new_v * (link.Value->bias);
-
-		// if (target_node->id == 7 && alpha > 0.2)
-		// 	print("LINK VEL: " + (-1 * new_v * (1 - link.Value->bias)).ToString());
-		// if (source_node->id == 7 && alpha > 0.2)
-		// 	print("LINK VEL: " + (new_v * (1 - link.Value->bias)).ToString());
-	}
-
-	if (1)
-	{
-		//charge forces
-		octree_node_strengths.Empty();
-		for (auto& node : all_nodes)
-		{
-			int key = node.Key;
-			auto kn = node.Value;
-
-
-			// Because the actor location hasn't changed when we compute the link force, so These two lines could actually be put in the start of the function. 
-
-			// If they are remove here，then why we do AddOctreeElement(ote) in AddNode?
-			RemoveElement(node.Key); //need to remove then update with new location when adding
-
-			AddNode(key, kn, kn->GetActorLocation());
-		}
-
-
-		// Most of the questions come from here。 
-		Accumulate();
-
-
-		for (auto& node : all_nodes)
-		{
-			ApplyManyBody(node.Value);
-		}
-	}
-}
-
-NodeStrength AKnowledgeGraph::AddUpChildren(
-	const FSimpleOctree::FNode& node,
-	FString node_id
-)
-{
-	if (!octree_node_strengths.Contains(node_id))
-	{
-		octree_node_strengths.Emplace(node_id, NodeStrength());
-	}
-	else
-	{
-		//reset
-		octree_node_strengths[node_id].strength = 0;
-		octree_node_strengths[node_id].direction = FVector(0, 0, 0);
-	}
-
-	if (!node.IsLeaf())
-	{
-		int count = 0;
-		float c = 0.0;
-		float strength = 0.0;
-		float weight = 0.0;
-		FVector tempvec;
-
-
-		FOREACH_OCTREE_CHILD_NODE(ChildRef)
-		{
-			//go find the leaves
-			if (
-
-				// ChildRef is a special structure, but basically store a number from one to 7. 
-				node.HasChild(ChildRef)
-			)
-			{
-				NodeStrength ns = AddUpChildren(
-					*node.GetChild(ChildRef),
-					node_id + FString::FromInt(count)
-				);
-				//add up children
-				//math for vector and strength
-				c = abs(ns.strength);
-
-				// Typically should be a positive integer, so strength will be same as weight. 
-				strength += ns.strength;
-
-				weight += c;
-
-
-				tempvec += c * ns.direction;
-
-				count++;
-			}
-		}
-		octree_node_strengths[node_id].strength = strength; //hash of ID of node for map
-		octree_node_strengths[node_id].direction = tempvec / weight;
-	}
-	else
-	{
-		for (FSimpleOctree::ElementConstIt ElementIt(node.GetElementIt()); ElementIt; ++ElementIt)
-		{
-			//all the way down to elements
-			const FOctreeElement& Sample = *ElementIt;
-
-
-			// So basically we add up all the strength inside a leaf node
-			octree_node_strengths[node_id].strength += Sample.MyActor->strength;
-			// When we summing up all the actual locations as a vector, it seems that it take an average location. 
-			octree_node_strengths[node_id].direction += Sample.MyActor->GetActorLocation();
-		}
-	}
-
-	// octree_node_strengths[node_id].direction.ToString(); //?
-	return octree_node_strengths[node_id];
-}
-
-//get weights for every node before applying
-void AKnowledgeGraph::Accumulate()
-{
-	for (
-		FSimpleOctree::TConstIterator<> NodeIt(*OctreeData);
-		NodeIt.HasPendingNodes();
-		NodeIt.Advance()
-	)
-	{
-		const FSimpleOctree::FNode& CurrentNode = NodeIt.GetCurrentNode();
-		// UE_LOG(LogTemp, Warning, TEXT("Ready to add up children"));
-		AddUpChildren(CurrentNode, "0");
-		break;
-	}
-}
-
-//use nodes to find velocity
-void AKnowledgeGraph::FindManyBodyForce(
-	AKnowledgeNode* kn,
-	const FSimpleOctree::FNode& node,
-	const FOctreeNodeContext CurrentContext,
-	FString node_id)
-{
-	NodeStrength ns = octree_node_strengths[node_id];
-
-	//if no strength, ignore
-	//    if(ns.strength == 0)
-	//        return;
-
-	const FBoxCenterAndExtent& CurrentBounds = CurrentContext.Bounds;
-	FVector center = CurrentBounds.Center;
-	FVector width = CurrentBounds.Extent;
-	FVector dir = ns.direction - kn->GetActorLocation();
-
-	// Remember that direction is the sum of all the Actor locations of the elements in that note. 
-	float l = dir.Size() * dir.Size();
-
-	// if size of current box is less than distance between nodes
-	// This is used to stop recurring down the tree.
-	if (width.X * width.X / theta2 < l)
-	{
-		//        print("GOING IN HERE");
-		if (l < distancemax)
-		{
-			if (l < distancemin)
-				l = sqrt(distancemin * l);
-			if (kn->id == 7 && alpha > 0.2)
-				print((dir * ns.strength * alpha / l).ToString());
-			//print(FString::SanitizeFloat(ns.strength));
-			float mult = pow(ns.strength / nodeStrength, 1.0);
-			kn->velocity += dir * ns.strength * alpha / (l / 2.0) * mult;
-		}
-		return;
-	}
-
-	// if not leaf, get all children
-
-	// People do we have to check on L bigger than distance max?
-	// FOREACH_OCTREE_CHILD_NODE Will not run if the note is LeaF note. , even if L is bigger than distance max. 
-	if (!node.IsLeaf() || l >= distancemax)
-	{
-		//recurse down this dude
-		//        print("IM NO LEAF");
-		//print("NOT A LEAF");
-		int count = 0;
-		FOREACH_OCTREE_CHILD_NODE(ChildRef)
-		{
-			if (node.HasChild(ChildRef))
-			{
-				FindManyBodyForce(
-					kn,
-					*node.GetChild(ChildRef),
-					CurrentContext.GetChildContext(ChildRef),
-					node_id + FString::FromInt(count)
-				);
-				count++;
-			}
-		}
-	} //if leaf and close, apply elements directly
-	else if (node.IsLeaf())
-	{
-		//print("IM LEAF");
-		if (l < distancemin)
-		{
-			l = sqrt(distancemin * l);
-		}
-		for (FSimpleOctree::ElementConstIt ElementIt(node.GetElementIt()); ElementIt; ++ElementIt)
-		{
-			const FOctreeElement& Sample = *ElementIt;
-			if (Sample.MyActor->id != kn->id)
-			{
-				dir = Sample.MyActor->GetActorLocation() - kn->GetActorLocation();
-				l = dir.Size() * dir.Size();
-				float mult = pow(Sample.MyActor->numberOfConnected, 3.0);
-
-
-				if (0)
-				{
-					if (kn->id == 7 && alpha > 0.2)
-					{
-						print(FString::FromInt(Sample.MyActor->id));
-						print((dir * Sample.MyActor->strength * alpha / l * mult).ToString());
-					}
-				}
-
-				kn->velocity += dir * Sample.MyActor->strength * alpha / l * mult;
-			}
-		}
-	}
-}
-
-void AKnowledgeGraph::ApplyManyBody(AKnowledgeNode* kn)
-{
-	FVector dir;
-	if (alpha > 0.2 && kn->id == 7)
-		print("--------------------------------------");
-	for (
-		FSimpleOctree::TConstIterator<> NodeIt(*OctreeData);
-		NodeIt.HasPendingNodes();
-		NodeIt.Advance()
-	)
-	{
-		FindManyBodyForce(kn,
-		                  NodeIt.GetCurrentNode(),
-		                  NodeIt.GetCurrentContext(),
-		                  "0"
-		);
-		break;
-	}
-}
 
 
 void AKnowledgeGraph::Tick(float DeltaTime)
