@@ -121,29 +121,36 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
 	float alpha = 1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
 	float iterations = 1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
-	float maxiterations = 10000;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
+	float maxiterations = 1000000;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
 	float alphaMin = 0.001;
+
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
-	float alphaDecay = pow(alphaMin, 0.05);
+	// float alphaDecay = pow(alphaMin, 0.05);
+	float alphaDecay = 1 - std::pow(alphaMin, 1.0 / 300);
+
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
 	float edgeDistance = 5;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
 	float nodeStrength = -30;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
-	float distancemin = 1000;
+	float distancemin = 1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
-	float distancemax = 10000;
+	float distancemax = 10000000;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
 	float theta2 = 0.81;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
 	float tick_interval = 0.1f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
-	int jnodes1 = 200;
+	int jnodes1 = 300;
 
 	
 protected:

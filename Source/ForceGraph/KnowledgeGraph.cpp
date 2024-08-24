@@ -104,7 +104,7 @@ void AKnowledgeGraph::BeginPlay()
 
 	InitOctree(FBox(FVector(-200, -200, -200), FVector(200, 200, 200)));
 
-	if (1)
+	if (0)
 	{
 		//json crap
 		const FString JsonFilePath = FPaths::ProjectContentDir() + "/data/graph.json";
@@ -147,40 +147,67 @@ void AKnowledgeGraph::BeginPlay()
 	}
 	else
 	{
-		if (0)
+		if (1)
 		{
-			//Retrieving an array property and printing each field
-			int jnodes = jnodes1;
-			for (int32 i = 0; i < jnodes; i++)
+			if (0)
 			{
-				int jid = i;
-				AKnowledgeNode* kn = GetWorld()->SpawnActor<AKnowledgeNode>();
-				AddNode(jid, kn, FVector(0, 0, 0));
-			}
-
-			// Edge creation loop
-			int jedges = jnodes; // Adjust the number of edges as needed to ensure coverage
-			std::random_device rd;
-			std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
-			std::uniform_int_distribution<> dis(0, jnodes - 1); // Random number distribution
-
-			for (int32 i = 0; i < jedges; i++)
-			{
-				int jid = i;
-				int jsource = i % jnodes; // Ensures jsource is always valid within the index range
-				int jtarget = (i + 1) % jnodes; // Connect each node to the next node; wraps around
-
-				AddEdge(jid, jsource, jtarget);
-
-				// Random additional edge to increase graph density
-				if (i < jnodes - 1)
+				//Retrieving an array property and printing each field
+				int jnodes = jnodes1;
+				for (int32 i = 0; i < jnodes; i++)
 				{
-					int random_target = dis(gen);
-					// Ensure that we do not add self-loops
-					if (random_target != jsource)
+					int jid = i;
+					AKnowledgeNode* kn = GetWorld()->SpawnActor<AKnowledgeNode>();
+					AddNode(jid, kn, FVector(0, 0, 0));
+				}
+
+				// Edge creation loop
+				int jedges = jnodes; // Adjust the number of edges as needed to ensure coverage
+				std::random_device rd;
+				std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
+				std::uniform_int_distribution<> dis(0, jnodes - 1); // Random number distribution
+
+				for (int32 i = 0; i < jedges; i++)
+				{
+					int jid = i;
+					int jsource = i % jnodes; // Ensures jsource is always valid within the index range
+					int jtarget = (i + 1) % jnodes; // Connect each node to the next node; wraps around
+
+					AddEdge(jid, jsource, jtarget);
+
+					// Random additional edge to increase graph density
+					if (i < jnodes - 1)
 					{
-						AddEdge(jid + jnodes, jsource, random_target); // Use jid+jnodes to keep distinct edge IDs
+						int random_target = dis(gen);
+						// Ensure that we do not add self-loops
+						if (random_target != jsource)
+						{
+							AddEdge(jid + jnodes, jsource, random_target); // Use jid+jnodes to keep distinct edge IDs
+						}
 					}
+				}
+			}
+			else
+			{
+				//Retrieving an array property and printing each field
+				int jnodes = jnodes1;
+				for (int32 i = 0; i < jnodes; i++)
+				{
+					int jid = i;
+					AKnowledgeNode* kn = GetWorld()->SpawnActor<AKnowledgeNode>();
+					AddNode(jid, kn, FVector(0, 0, 0));
+				}
+
+				// Edge creation loop
+				int jedges = jnodes; // Adjust the number of edges as needed to ensure coverage
+
+				for (int32 i = 0; i < jedges; i++)
+				{
+					int jid = i;
+					int jsource = i; // Ensures jsource is always valid within the index range
+
+					// Connected to random node 
+					int jtarget = FMath::RandRange(0, jnodes - 1);
+					AddEdge(jid, jsource, jtarget);
 				}
 			}
 		}
