@@ -137,7 +137,7 @@ public:
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
-	int32 wayofinitnodeslinks = 0;
+	int32 wayofinitnodeslinks = 2;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
 	float edgeDistance = 5;
@@ -153,8 +153,9 @@ public:
 	float tick_interval = 0.1f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
 	int jnodes1 = 300;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
+	int biasinitway=0;
 
-	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

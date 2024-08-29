@@ -413,7 +413,11 @@ void AKnowledgeGraph::InitForces()
 			all_nodes[link.Value->target]->numberOfConnected
 		);
 
-		if (1)
+
+
+
+		
+		if (biasinitway == 0)
 		{
 			link.Value->bias = bias > 0.5 ? (1 - bias) * 0.5 + bias : bias * 0.5;
 		}
