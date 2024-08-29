@@ -316,7 +316,7 @@ void AKnowledgeGraph::ApplyManyBody(AKnowledgeNode* kn)
 
 void AKnowledgeGraph::InitNodes()
 {
-	if (1)
+	if (0)
 	{
 		for (auto& node : all_nodes)
 		{
@@ -333,9 +333,10 @@ void AKnowledgeGraph::InitNodes()
 	}
 	else
 	{
-		int index = 0; // To replicate the node indexing from the original JS function
+		 // To replicate the node indexing from the original JS function
 		for (auto& node : all_nodes)
 		{
+			int index = node.Key;
 			// Calculate index-based radius differently based on the number of dimensions
 			float radius = 0;
 			int nDim=3;
@@ -347,8 +348,12 @@ void AKnowledgeGraph::InitNodes()
 				radius = initialRadius * index;
 			}
 
-			float initialAngleRoll;
-			float initialAngleYaw;
+			float initialAngleRoll = PI * (3 - sqrt(5));  // Roll angle
+
+			// Following will be Math.PI * 20 / (9 + Math.sqrt(221));
+			float initialAngleYaw =	PI* 20 / (9 + sqrt(221));  // Yaw angle if needed (3D)
+
+
 			float rollAngle = index * initialAngleRoll;  // Roll angle
 			float yawAngle = index * initialAngleYaw;    // Yaw angle if needed (3D)
 
@@ -377,7 +382,7 @@ void AKnowledgeGraph::InitNodes()
 			}
 
 			// Increment index for next node
-			index++;
+			// index++;
 		}
 	}
 }
