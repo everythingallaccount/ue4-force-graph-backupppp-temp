@@ -316,17 +316,69 @@ void AKnowledgeGraph::ApplyManyBody(AKnowledgeNode* kn)
 
 void AKnowledgeGraph::InitNodes()
 {
-	for (auto& node : all_nodes)
+	if (1)
 	{
-		float radius = initialRadius * sqrt(node.Key);
-		float angle = node.Key * initialAngle;
-		FVector init_pos = FVector(cos(angle), sin(angle), tan(angle)) * radius;
+		for (auto& node : all_nodes)
+		{
+			float radius = initialRadius * sqrt(node.Key);
+			float angle = node.Key * initialAngle;
+			FVector init_pos = FVector(cos(angle), sin(angle), tan(angle)) * radius;
 
-		// Remember that the note value stored the actual object. 
-		node.Value->SetActorLocation(init_pos, false);
-		//        print("init position");
-		//        print(node.Value->GetActorLocation().ToString());
-		node.Value->velocity = FVector(0, 0, 0);
+			// Remember that the note value stored the actual object. 
+			node.Value->SetActorLocation(init_pos, false);
+			//        print("init position");
+			//        print(node.Value->GetActorLocation().ToString());
+			node.Value->velocity = FVector(0, 0, 0);
+		}
+	}
+	else
+	{
+		int index = 0; // To replicate the node indexing from the original JS function
+		for (auto& node : all_nodes)
+		{
+			// Calculate index-based radius differently based on the number of dimensions
+			float radius = 0;
+			int nDim=3;
+			if (nDim > 2) {
+				radius = initialRadius * cbrt(0.5f + index);
+			} else if (nDim > 1) {
+				radius = initialRadius * sqrt(0.5f + index);
+			} else {
+				radius = initialRadius * index;
+			}
+
+			float initialAngleRoll;
+			float initialAngleYaw;
+			float rollAngle = index * initialAngleRoll;  // Roll angle
+			float yawAngle = index * initialAngleYaw;    // Yaw angle if needed (3D)
+
+			FVector init_pos;
+
+			if (nDim == 1) {
+				// 1D: Positions along X axis
+				init_pos = FVector(radius, 0, 0);
+			} else if (nDim == 2) {
+				// 2D: Circular distribution
+				init_pos = FVector(radius * cos(rollAngle), radius * sin(rollAngle), 0);
+			} else {
+				// 3D: Spherical distribution
+				init_pos = FVector(radius * sin(rollAngle) * cos(yawAngle), radius * cos(rollAngle), radius * sin(rollAngle) * sin(yawAngle));
+			}
+
+			// Set the initial position of the node Actor
+			if (node.Value) {  // Check if pointer is valid
+				node.Value->SetActorLocation(init_pos, false);
+
+				// Log the initial position - Uncomment to use
+				// UE_LOG(LogTemp, Warning, TEXT("Init position: %s"), *init_pos.ToString());
+
+				// Set initial velocity to zero
+				node.Value->velocity = FVector(0, 0, 0);
+			}
+
+			// Increment index for next node
+			index++;
+		}
 	}
 }
 
@@ -681,6 +733,7 @@ void AKnowledgeGraph::Tick(float DeltaTime)
 	iterations += 1;
 
 
+	
 	if (iterations > maxiterations)
 	{
 		return;
