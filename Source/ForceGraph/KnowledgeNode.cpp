@@ -20,8 +20,11 @@ AKnowledgeNode::AKnowledgeNode()
 
     static ConstructorHelpers::FObjectFinder<UStaticMesh>SphereMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Sphere.Sphere'"));
     SphereMesh->SetStaticMesh(SphereMeshAsset.Object);
-    
-    SphereMesh->SetWorldScale3D(FVector(0.2, 0.2, 0.2));
+
+
+
+	float Scale = 0.2;
+    SphereMesh->SetWorldScale3D(FVector(Scale, Scale, Scale));
 
 }
 
