@@ -53,7 +53,7 @@ void AKnowledgeGraph::ApplyForces()
 		// UE_LOG(LogTemp, Warning, TEXT("!!!link.Value->distance: %f"), link.Value->distance);
 
 
-		// By looking at the javascript code, we can see strength Will only be computed when there is a change to the graph.
+		// By looking at the javascript code, we can see strength Will only be computed when there is a change Of the graph structure to the graph.
 		l = (l - link.Value->distance) / l * alpha * link.Value->strength;
 		new_v *= l;
 
