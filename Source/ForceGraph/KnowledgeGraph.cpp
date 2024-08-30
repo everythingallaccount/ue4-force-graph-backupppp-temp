@@ -741,7 +741,7 @@ void AKnowledgeGraph::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
+	// return;
 	iterations += 1;
 
 
