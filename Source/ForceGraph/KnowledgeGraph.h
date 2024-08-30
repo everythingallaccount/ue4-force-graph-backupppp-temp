@@ -140,7 +140,7 @@ public:
 	int32 wayofinitnodeslinks = 2;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
-	float edgeDistance = 5;
+	float edgeDistance = 30;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
 	float nodeStrength = -30;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
