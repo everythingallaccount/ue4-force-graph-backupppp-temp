@@ -156,6 +156,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
 	int biasinitway=0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
+	float initialRadius = 10;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -167,7 +170,6 @@ private:
 	//    FVector GetWeightedDistance(FVector prev_loc);
 	float alphaTarget = 0;
 	float velocityDecay = 0.6;
-	float initialRadius = 10;
 	float initialAngle = PI * (3 - sqrt(5));
 	bool init = false;
 
