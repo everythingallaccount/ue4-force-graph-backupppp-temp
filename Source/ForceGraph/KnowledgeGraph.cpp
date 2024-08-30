@@ -227,7 +227,7 @@ void AKnowledgeGraph::FindManyBodyForce(
 		{
 			if (l < distancemin)
 				l = sqrt(distancemin * l);
-			if (kn->id == 7 && alpha > 0.2)
+			if (kn->id == 7)
 				print((dir * ns.strength * alpha / l).ToString());
 			//print(FString::SanitizeFloat(ns.strength));
 			float mult = pow(ns.strength / nodeStrength, 1.0);
