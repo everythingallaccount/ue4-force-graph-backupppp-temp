@@ -9,7 +9,6 @@
 #define print(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 10, FColor::White,text)
 
 
-
 FVector Jiggle(const FVector& Vec, float Magnitude)
 {
 	FVector RandomJitter;
@@ -313,7 +312,6 @@ void AKnowledgeGraph::ApplyManyBody(AKnowledgeNode* kn)
 }
 
 
-
 void AKnowledgeGraph::InitNodes()
 {
 	if (0)
@@ -333,45 +331,58 @@ void AKnowledgeGraph::InitNodes()
 	}
 	else
 	{
-		 // To replicate the node indexing from the original JS function
+		// To replicate the node indexing from the original JS function
 		for (auto& node : all_nodes)
 		{
 			int index = node.Key;
 			// Calculate index-based radius differently based on the number of dimensions
 			float radius = 0;
-			int nDim=3;
-			if (nDim > 2) {
+			int nDim = 3;
+			if (nDim > 2)
+			{
 				radius = initialRadius * cbrt(0.5f + index);
-			} else if (nDim > 1) {
+			}
+			else if (nDim > 1)
+			{
 				radius = initialRadius * sqrt(0.5f + index);
-			} else {
+			}
+			else
+			{
 				radius = initialRadius * index;
 			}
 
-			float initialAngleRoll = PI * (3 - sqrt(5));  // Roll angle
+			float initialAngleRoll = PI * (3 - sqrt(5)); // Roll angle
 
 			// Following will be Math.PI * 20 / (9 + Math.sqrt(221));
-			float initialAngleYaw =	PI* 20 / (9 + sqrt(221));  // Yaw angle if needed (3D)
+			float initialAngleYaw = PI * 20 / (9 + sqrt(221)); // Yaw angle if needed (3D)
 
 
-			float rollAngle = index * initialAngleRoll;  // Roll angle
-			float yawAngle = index * initialAngleYaw;    // Yaw angle if needed (3D)
+			float rollAngle = index * initialAngleRoll; // Roll angle
+			float yawAngle = index * initialAngleYaw; // Yaw angle if needed (3D)
 
 			FVector init_pos;
 
-			if (nDim == 1) {
+			if (nDim == 1)
+			{
 				// 1D: Positions along X axis
 				init_pos = FVector(radius, 0, 0);
-			} else if (nDim == 2) {
+			}
+			else if (nDim == 2)
+			{
 				// 2D: Circular distribution
 				init_pos = FVector(radius * cos(rollAngle), radius * sin(rollAngle), 0);
-			} else {
+			}
+			else
+			{
 				// 3D: Spherical distribution
-				init_pos = FVector(radius * sin(rollAngle) * cos(yawAngle), radius * cos(rollAngle), radius * sin(rollAngle) * sin(yawAngle));
+				init_pos = FVector(radius * sin(rollAngle) * cos(yawAngle), radius * cos(rollAngle),
+				                   radius * sin(rollAngle) * sin(yawAngle));
 			}
 
 			// Set the initial position of the node Actor
-			if (node.Value) {  // Check if pointer is valid
+			if (node.Value)
+			{
+				// Check if pointer is valid
 				node.Value->SetActorLocation(init_pos, false);
 
 				// Log the initial position - Uncomment to use
@@ -414,9 +425,6 @@ void AKnowledgeGraph::InitForces()
 		);
 
 
-
-
-		
 		if (biasinitway == 0)
 		{
 			link.Value->bias = bias > 0.5 ? (1 - bias) * 0.5 + bias : bias * 0.5;
@@ -428,7 +436,7 @@ void AKnowledgeGraph::InitForces()
 
 
 		link.Value->strength = 1.0 / fmin(all_nodes[link.Value->source]->numberOfConnected,
-										  all_nodes[link.Value->target]->numberOfConnected);
+		                                  all_nodes[link.Value->target]->numberOfConnected);
 	}
 
 	//charge forces
@@ -447,7 +455,6 @@ void AKnowledgeGraph::RemoveElement(int key)
 	OctreeData->RemoveElement(OctreeData->all_elements[key]);
 	all_nodes.Remove(key);
 }
-
 
 
 void AKnowledgeGraph::AddOctreeElement(const FOctreeElement& inNewOctreeElement)
@@ -481,8 +488,8 @@ void AKnowledgeGraph::AddEdge(int32 id, int32 source, int32 target)
 {
 	UObject* SpawnClass = Cast<UObject>(
 		StaticLoadObject(UObject::StaticClass(),
-						 NULL,
-						 TEXT("Blueprint'/Game/cylinder.cylinder'")
+		                 NULL,
+		                 TEXT("Blueprint'/Game/cylinder.cylinder'")
 		)
 	);
 	UBlueprint* GeneratedObj = Cast<UBlueprint>(SpawnClass);
@@ -502,10 +509,8 @@ void AKnowledgeGraph::AddEdge(int32 id, int32 source, int32 target)
 	SimulationSystem->all_links.Emplace(id, e);
 
 
-
 	UE_LOG(LogTemp, Warning, TEXT("SIMULATION SYSTEM LINKS: %d"), SimulationSystem->all_links.Num());
 }
-
 
 
 FSimpleOctree::FSimpleOctree(const FVector& InOrigin, float InExtent) : TOctree(InOrigin, InExtent)
@@ -521,7 +526,6 @@ void FOctreeSematics::SetElementId(FOctreeSematics::FOctree& thisOctree, const F
 AKnowledgeGraph::AKnowledgeGraph()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
 
 
 	// Useless not used it. 
@@ -733,7 +737,6 @@ void AKnowledgeGraph::BeginPlay()
 }
 
 
-
 void AKnowledgeGraph::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -742,7 +745,6 @@ void AKnowledgeGraph::Tick(float DeltaTime)
 	iterations += 1;
 
 
-	
 	if (iterations > maxiterations)
 	{
 		return;
