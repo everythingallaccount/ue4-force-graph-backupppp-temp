@@ -155,7 +155,10 @@ public:
 	int jnodes1 = 300;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
 	int biasinitway=0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
+	float nodescalingggggg=0.2;
 
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

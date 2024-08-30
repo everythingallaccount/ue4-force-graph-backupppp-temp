@@ -705,6 +705,9 @@ void AKnowledgeGraph::BeginPlay()
 			{
 				int jid = i;
 				AKnowledgeNode* kn = GetWorld()->SpawnActor<AKnowledgeNode>();
+
+
+				
 				AddNode(jid, kn, FVector(0, 0, 0));
 			}
 
