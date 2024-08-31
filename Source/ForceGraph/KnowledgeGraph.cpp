@@ -74,8 +74,11 @@ void AKnowledgeGraph::ApplyForces()
 
 		source_node->velocity += new_v * (link.Value->bias);
 
+		
 		if (target_node->id == 7 && alpha > 0.2)
 			ll("LINK VEL: " + (-1 * new_v * (1 - link.Value->bias)).ToString());
+
+
 		if (source_node->id == 7 && alpha > 0.2)
 			ll("LINK VEL: " + (new_v * (1 - link.Value->bias)).ToString());
 
@@ -190,6 +193,7 @@ NodeStrength AKnowledgeGraph::AddUpChildren(
 //get weights for every node before applying
 void AKnowledgeGraph::Accumulate()
 {
+	ll("Accumulate--------------------------------------");
 	for (
 		FSimpleOctree::TConstIterator<> NodeIt(*OctreeData);
 		NodeIt.HasPendingNodes();
@@ -234,7 +238,7 @@ void AKnowledgeGraph::FindManyBodyForce(
 			if (l < distancemin)
 				l = sqrt(distancemin * l);
 			if (kn->id == 7)
-				print((dir * ns.strength * alpha / l).ToString());
+				ll((dir * ns.strength * alpha / l).ToString());
 			//print(FString::SanitizeFloat(ns.strength));
 			float mult = pow(ns.strength / nodeStrength, 1.0);
 			kn->velocity += dir * ns.strength * alpha / (l / 2.0) * mult;
@@ -302,7 +306,7 @@ void AKnowledgeGraph::ApplyManyBody(AKnowledgeNode* kn)
 {
 	FVector dir;
 	if (alpha > 0.2 && kn->id == 7)
-		print("--------------------------------------");
+		ll("ApplyManyBody--------------------------------------");
 	for (
 		FSimpleOctree::TConstIterator<> NodeIt(*OctreeData);
 		NodeIt.HasPendingNodes();
@@ -743,7 +747,9 @@ void AKnowledgeGraph::Tick(float DeltaTime)
 
 	if (1)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("tick,alpha: %f"), alpha);
+		ll("TICK--------------------------------------");
+		ll("alpha: " + FString::SanitizeFloat(alpha));
+		ll("iterations: " + FString::FromInt(iterations));
 
 		if (alpha < alphaMin)
 		{
@@ -753,6 +759,7 @@ void AKnowledgeGraph::Tick(float DeltaTime)
 
 		alpha += (alphaTarget - alpha) * alphaDecay; //need to restart this if want to keep moving
 
+		
 		ApplyForces();
 
 		for (auto& node : all_nodes)
