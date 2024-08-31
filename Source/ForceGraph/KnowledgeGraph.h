@@ -102,6 +102,7 @@ public:
 	AKnowledgeGraph();
 	~AKnowledgeGraph();
 	void GenerateConnectedGraph(int32 NumClusters, int32 NodesPerCluster);
+	void DoWork2();
 	void DoWork1();
 
 	void AddNode(int32 id, AKnowledgeNode* kn, FVector location);
