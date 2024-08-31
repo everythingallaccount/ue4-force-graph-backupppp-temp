@@ -14,7 +14,7 @@ AKnowledgeEdge::AKnowledgeEdge()
     MySphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere Comp"));
     MySphere->SetHiddenInGame(false, true);
     RootComponent = MySphere;
-
+    
 }
 
 // Called when the game starts or when spawned

@@ -6,7 +6,12 @@
 #include <random>
 
 #include "SimulationSystem.h"
+#include "utillllllssss.h"
 #define print(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 10, FColor::White,text)
+
+
+
+
 
 
 FVector Jiggle(const FVector& Vec, float Magnitude)
@@ -69,10 +74,12 @@ void AKnowledgeGraph::ApplyForces()
 
 		source_node->velocity += new_v * (link.Value->bias);
 
-		// if (target_node->id == 7 && alpha > 0.2)
-		// 	print("LINK VEL: " + (-1 * new_v * (1 - link.Value->bias)).ToString());
-		// if (source_node->id == 7 && alpha > 0.2)
-		// 	print("LINK VEL: " + (new_v * (1 - link.Value->bias)).ToString());
+		if (target_node->id == 7 && alpha > 0.2)
+			ll("LINK VEL: " + (-1 * new_v * (1 - link.Value->bias)).ToString());
+		if (source_node->id == 7 && alpha > 0.2)
+			ll("LINK VEL: " + (new_v * (1 - link.Value->bias)).ToString());
+
+
 	}
 
 	if (1)
@@ -513,7 +520,8 @@ void AKnowledgeGraph::AddEdge(int32 id, int32 source, int32 target)
 }
 
 
-FSimpleOctree::FSimpleOctree(const FVector& InOrigin, float InExtent) : TOctree(InOrigin, InExtent)
+FSimpleOctree::FSimpleOctree(const FVector& InOrigin, float InExtent) :
+TOctree(InOrigin, InExtent)
 {
 }
 
@@ -597,6 +605,8 @@ void AKnowledgeGraph::GenerateConnectedGraph(int32 NumClusters, int32 NodesPerCl
 		AddEdge(i, ClusterCenterIDs[i], ClusterCenterIDs[i + 1]); // Use node IDs to connect cluster centers
 	}
 }
+
+
 
 
 void AKnowledgeGraph::BeginPlay()
@@ -699,27 +709,7 @@ void AKnowledgeGraph::BeginPlay()
 
 	case 2:
 		{
-			//Retrieving an array property and printing each field
-			int jnodes11 = jnodes1;
-			for (int32 i = 0; i < jnodes11; i++)
-			{
-				int jid = i;
-				AKnowledgeNode* kn = GetWorld()->SpawnActor<AKnowledgeNode>();
-				AddNode(jid, kn, FVector(0, 0, 0));
-			}
-
-			// Edge creation loop
-			int jedges11 = jnodes11; // Adjust the number of edges as needed to ensure coverage
-
-			for (int32 i = 0; i < jedges11; i++)
-			{
-				int jid = i;
-				int jsource = i; // Ensures jsource is always valid within the index range
-
-				// Connected to random node 
-				int jtarget = FMath::RandRange(0, jnodes11 - 1);
-				AddEdge(jid, jsource, jtarget);
-			}
+			DoWork1();
 		}
 		break;
 	case 3:
@@ -754,6 +744,7 @@ void AKnowledgeGraph::Tick(float DeltaTime)
 	if (1)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("tick,alpha: %f"), alpha);
+
 		if (alpha < alphaMin)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("alpha is less than alphaMin"));
