@@ -1,17 +1,44 @@
 ﻿#include "utillllllssss.h"
 #include "Engine/Engine.h"
 
-void ll(const FString& StringToLog)
+// void ll(const FString& StringToLog)
+// {
+// 	if (!StringToLog.IsEmpty())
+// 	{
+// 		// Log to Unreal Engine console
+// 		UE_LOG(LogTemp, Log, TEXT("%s"), *StringToLog);
+//         
+// 		// Optionally, display on screen
+// 		if (GEngine)
+// 		{
+// 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, StringToLog);
+// 		}
+// 	}
+// }
+
+void ll(const FString& StringToLog, int SeverityLevel, const FString& Prefix)
 {
 	if (!StringToLog.IsEmpty())
 	{
-		// Log to Unreal Engine console
-		UE_LOG(LogTemp, Log, TEXT("%s"), *StringToLog);
-        
-		// Optionally, display on screen
-		if (GEngine)
+		FString LogMessage = Prefix + StringToLog; // Prepends a prefix to the original message
+		// ELogVerbosity::Type LogLevel1;
+
+		// Map SeverityLevel to ELogVerbosity
+		switch (SeverityLevel) 
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, StringToLog);
+		case 1:
+			
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *LogMessage);
+
+			break;
+		case 2:
+			UE_LOG(LogTemp, Error, TEXT("%s"), *LogMessage);	
+			break;
+		default:
+			UE_LOG(LogTemp, Log, TEXT("%s"), *LogMessage);
+			break;
 		}
+
+		
 	}
 }

@@ -10,10 +10,6 @@
 #define print(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 10, FColor::White,text)
 
 
-
-
-
-
 FVector Jiggle(const FVector& Vec, float Magnitude)
 {
 	FVector RandomJitter;
@@ -59,11 +55,12 @@ void AKnowledgeGraph::ApplyForces()
 
 
 		// By looking at the javascript code, we can see strength Will only be computed when there is a change Of the graph structure to the graph.
-		l = (l - link.Value->distance) / l * alpha * link.Value->strength;
+		l = (l - link.Value->distance) /
+			l * alpha * link.Value->strength;
 		new_v *= l;
 
 
-		if (1)
+		if (0)
 		{
 			target_node->velocity -= new_v * (1 - link.Value->bias);
 		}
@@ -72,17 +69,15 @@ void AKnowledgeGraph::ApplyForces()
 			target_node->velocity -= new_v * (link.Value->bias);
 		}
 
-		source_node->velocity += new_v * (link.Value->bias);
+		source_node->velocity += new_v * (1 - link.Value->bias);
 
-		
+
 		if (target_node->id == 7 && alpha > 0.2)
-			ll("LINK VEL: " + (-1 * new_v * (1 - link.Value->bias)).ToString());
+			ll("target node id is 7 LINK VEL: " + (-1 * new_v * (1 - link.Value->bias)).ToString());
 
 
 		if (source_node->id == 7 && alpha > 0.2)
 			ll("LINK VEL: " + (new_v * (1 - link.Value->bias)).ToString());
-
-
 	}
 
 	if (1)
@@ -178,7 +173,6 @@ NodeStrength AKnowledgeGraph::AddUpChildren(
 			//all the way down to elements
 			const FOctreeElement& Sample = *ElementIt;
 
-
 			// So basically we add up all the strength inside a leaf node
 			octree_node_strengths[node_id].strength += Sample.MyActor->strength;
 			// When we summing up all the actual locations as a vector, it seems that it take an average location. 
@@ -237,9 +231,18 @@ void AKnowledgeGraph::FindManyBodyForce(
 		{
 			if (l < distancemin)
 				l = sqrt(distancemin * l);
+
+			
 			if (kn->id == 7)
-				ll((dir * ns.strength * alpha / l).ToString());
+			{
+				ll("aaaaaaaaaa");
+				ll(
+					(dir * ns.strength * alpha / l).ToString(),2 
+				);
+				ll("bbbbbbbbbb");
+			}
 			//print(FString::SanitizeFloat(ns.strength));
+			
 			float mult = pow(ns.strength / nodeStrength, 1.0);
 			kn->velocity += dir * ns.strength * alpha / (l / 2.0) * mult;
 		}
@@ -305,8 +308,9 @@ void AKnowledgeGraph::FindManyBodyForce(
 void AKnowledgeGraph::ApplyManyBody(AKnowledgeNode* kn)
 {
 	FVector dir;
-	if (alpha > 0.2 && kn->id == 7)
-		ll("ApplyManyBody--------------------------------------");
+	if (kn->id == 7)
+		ll(
+			"ApplyManyBody--------------------------------------We are comparing all the other notes with this ID7 note. ");
 	for (
 		FSimpleOctree::TConstIterator<> NodeIt(*OctreeData);
 		NodeIt.HasPendingNodes();
@@ -525,7 +529,7 @@ void AKnowledgeGraph::AddEdge(int32 id, int32 source, int32 target)
 
 
 FSimpleOctree::FSimpleOctree(const FVector& InOrigin, float InExtent) :
-TOctree(InOrigin, InExtent)
+	TOctree(InOrigin, InExtent)
 {
 }
 
@@ -609,8 +613,6 @@ void AKnowledgeGraph::GenerateConnectedGraph(int32 NumClusters, int32 NodesPerCl
 		AddEdge(i, ClusterCenterIDs[i], ClusterCenterIDs[i + 1]); // Use node IDs to connect cluster centers
 	}
 }
-
-
 
 
 void AKnowledgeGraph::BeginPlay()
@@ -759,7 +761,7 @@ void AKnowledgeGraph::Tick(float DeltaTime)
 
 		alpha += (alphaTarget - alpha) * alphaDecay; //need to restart this if want to keep moving
 
-		
+
 		ApplyForces();
 
 		for (auto& node : all_nodes)
