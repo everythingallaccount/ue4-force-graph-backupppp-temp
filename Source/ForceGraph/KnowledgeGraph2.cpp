@@ -6,7 +6,6 @@
 #define print(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 10, FColor::White,text)
 
 
-
 void AKnowledgeGraph::DoWork1()
 {
 	//Retrieving an array property and printing each field
@@ -27,7 +26,7 @@ void AKnowledgeGraph::DoWork1()
 		int jsource = i; // Ensures jsource is always valid within the index range
 
 		// Connected to random node 
-		int jtarget = FMath::RandRange(0, jnodes11 - 1);
+		int jtarget = FMath::RandRange(0, i - 1);
 		AddEdge(jid, jsource, jtarget);
 	}
 }
