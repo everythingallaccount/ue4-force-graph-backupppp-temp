@@ -141,3 +141,62 @@ void AKnowledgeGraph::DoWork2()
 		InitForces();
 	}
 }
+void AKnowledgeGraph::GenerateConnectedGraph(int32 NumClusters, int32 NodesPerCluster)
+{
+	if (!GetWorld()) return;
+
+	TArray<int32> ClusterCenterIDs;
+	ClusterCenterIDs.Reserve(NumClusters);
+
+	// Create Cluster Centers
+	for (int32 i = 0; i < NumClusters; ++i)
+	{
+		FVector Location = FVector(
+			0,
+			0,
+			0
+		);
+		AKnowledgeNode* Node = GetWorld()->SpawnActor<AKnowledgeNode>(AKnowledgeNode::StaticClass(), Location,
+																	  FRotator::ZeroRotator);
+		int32 nodeId = i; // Assign node ID, assumed incremented or derived
+		AddNode(nodeId, Node, Location);
+		ClusterCenterIDs.Add(nodeId);
+	}
+
+	// Connect Cluster Nodes
+	for (int32 i = 0; i < NumClusters; ++i)
+	{
+		for (int32 j = 1; j < NodesPerCluster; ++j)
+		{
+			FVector Location = FVector(i * 100.0f, j * 50.0f, 0); // Organize per cluster
+			AKnowledgeNode* Node = GetWorld()->SpawnActor<AKnowledgeNode>(
+				AKnowledgeNode::StaticClass(), Location, FRotator::ZeroRotator);
+			int32 nodeId = i * NodesPerCluster + j; // Calculate unique node ID
+
+
+			AddNode(nodeId, Node, Location);
+
+			if (1)
+			{
+				AddEdge(nodeId,
+						ClusterCenterIDs[i],
+						nodeId
+				); // Use node IDs for connection
+			}
+			else
+			{
+				AddEdge(nodeId,
+						nodeId,
+
+						ClusterCenterIDs[i]
+				); // Use node IDs for connection
+			}
+		}
+	}
+
+	// Inter-cluster Connections
+	for (int32 i = 0; i < NumClusters - 1; ++i)
+	{
+		AddEdge(i, ClusterCenterIDs[i], ClusterCenterIDs[i + 1]); // Use node IDs to connect cluster centers
+	}
+}
