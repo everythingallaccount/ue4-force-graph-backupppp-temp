@@ -232,17 +232,17 @@ void AKnowledgeGraph::FindManyBodyForce(
 			if (l < distancemin)
 				l = sqrt(distancemin * l);
 
-			
+
 			if (kn->id == 7)
 			{
 				ll("aaaaaaaaaa");
 				ll(
-					(dir * ns.strength * alpha / l).ToString(),2 
+					(dir * ns.strength * alpha / l).ToString(), 2
 				);
 				ll("bbbbbbbbbb");
 			}
 			//print(FString::SanitizeFloat(ns.strength));
-			
+
 			float mult = pow(ns.strength / nodeStrength, 1.0);
 			kn->velocity += dir * ns.strength * alpha / (l / 2.0) * mult;
 		}
