@@ -138,6 +138,8 @@ void AKnowledgeGraph::DoWork2()
 	if (!init)
 	{
 		InitNodes();
+		
+		
 		InitForces();
 	}
 }
@@ -208,10 +210,14 @@ void AKnowledgeGraph::ApplyForces()
 	// In here velocity of all notes are zeroed
 	// In the following for loop, In the first few loop, the velocity is 0. 
 
+
+	int32 Index = 0;
 	// link forces
 	// After loop, the velocity of all notes have been altered a little bit because of the link force already. 
 	for (auto& link : all_links)
 	{
+
+		ll("ApplyForcesssssssssssssssssssss Index: " + FString::FromInt(Index));
 		auto source_node = all_nodes[link.Value->source];
 		auto target_node = all_nodes[link.Value->target];
 
@@ -242,7 +248,10 @@ void AKnowledgeGraph::ApplyForces()
 			l * alpha * link.Value->strength;
 		new_v *= l;
 
+		// Record targeted original velocity.
+		FVector target_original_velocity = target_node->velocity;
 
+		
 		if (0)
 		{
 			target_node->velocity -= new_v * (1 - link.Value->bias);
@@ -252,15 +261,34 @@ void AKnowledgeGraph::ApplyForces()
 			target_node->velocity -= new_v * (link.Value->bias);
 		}
 
+		// Log out the original velocity and the update velocity. 
+		ll("TARGET VELOCITY: " + target_original_velocity.ToString()+ " -> " + target_node->velocity.ToString());
+
+		
+		// Record source original velocity.
+		FVector source_original_velocity = source_node->velocity;
+
+		
 		source_node->velocity += new_v * (1 - link.Value->bias);
 
 
-		if (target_node->id == 7 && alpha > 0.2)
-			ll("target node id is 7 LINK VEL: " + (-1 * new_v * (1 - link.Value->bias)).ToString());
+		ll("SOURCE VELOCITY: " + source_original_velocity.ToString() + " -> " + source_node->velocity.ToString());
+
+		if (0)
+		{
+			if (target_node->id == 7 && alpha > 0.2)
+				ll("LINK VEL: " + (-1 * new_v * (1 - link.Value->bias)).ToString());
 
 
-		if (source_node->id == 7 && alpha > 0.2)
-			ll("LINK VEL: " + (new_v * (1 - link.Value->bias)).ToString());
+			if (source_node->id == 7 && alpha > 0.2)
+				ll("LINK VEL: " + (new_v * (1 - link.Value->bias)).ToString());
+		}
+		else
+		{
+
+		}
+
+		Index++; 
 	}
 
 	if (1)
@@ -614,6 +642,8 @@ void AKnowledgeGraph::InitNodes()
 			{
 				// Check if pointer is valid
 				node.Value->SetActorLocation(init_pos, false);
+
+				ll("index: " + FString::FromInt(index) + " init_pos: " + init_pos.ToString());
 
 				// Log the initial position - Uncomment to use
 				// UE_LOG(LogTemp, Warning, TEXT("Init position: %s"), *init_pos.ToString());
