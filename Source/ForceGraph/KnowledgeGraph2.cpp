@@ -5,6 +5,8 @@
 
 
 #include "utillllllssss.h"
+#include "Misc/FileHelper.h"
+#include "Serialization/JsonSerializer.h"
 
 #define print(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 10, FColor::White,text)
 
@@ -558,10 +560,7 @@ void AKnowledgeGraph::ApplyManyBody(AKnowledgeNode* kn)
 
 
 
-FSimpleOctree::FSimpleOctree(const FVector& InOrigin, float InExtent) :
-	TOctree(InOrigin, InExtent)
-{
-}
+
 
 void FOctreeSematics::SetElementId(FOctreeSematics::FOctree& thisOctree, const FOctreeElement& Element,
 								   FOctreeElementId Id)
@@ -574,6 +573,11 @@ void AKnowledgeGraph::InitOctree(const FBox& inNewBounds)
 {
 	//OctreeData = new FSimpleOctree(FVector(0.0f, 0.0f, 0.0f), 100.0f);
 	OctreeData = new FSimpleOctree(inNewBounds.GetCenter(), inNewBounds.GetExtent().GetMax());
+}
+
+FSimpleOctree::FSimpleOctree(const FVector& InOrigin, float InExtent) :
+	TOctree(InOrigin, InExtent)
+{
 }
 
 void AKnowledgeGraph::RemoveElement(int key)
