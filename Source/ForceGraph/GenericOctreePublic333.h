@@ -14,15 +14,15 @@
 class FOctreeElementId
 {
 public:
-
-	template<typename,typename>
+	template <typename, typename>
 	friend class TOctree;
 
 	/** Default constructor. */
 	FOctreeElementId()
-		:	Node(NULL)
-		,	ElementIndex(INDEX_NONE)
-	{}
+		: Node(NULL)
+		  , ElementIndex(INDEX_NONE)
+	{
+	}
 
 	/** @return a boolean value representing whether the id is NULL. */
 	bool IsValidId() const
@@ -31,7 +31,6 @@ public:
 	}
 
 private:
-
 	/** The node the element is in. */
 	const void* Node;
 
@@ -39,10 +38,11 @@ private:
 	int32 ElementIndex;
 
 	/** Initialization constructor. */
-	FOctreeElementId(const void* InNode,int32 InElementIndex)
-		:	Node(InNode)
-		,	ElementIndex(InElementIndex)
-	{}
+	FOctreeElementId(const void* InNode, int32 InElementIndex)
+		: Node(InNode)
+		  , ElementIndex(InElementIndex)
+	{
+	}
 
 	/** Implicit conversion to the element index. */
 	operator int32() const
