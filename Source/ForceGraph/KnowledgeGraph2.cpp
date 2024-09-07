@@ -23,11 +23,11 @@ void AKnowledgeGraph::DoWork1()
 	// Edge creation loop
 	int jedges11 = jnodes11; // Adjust the number of edges as needed to ensure coverage
 
-	if (0)
+	if (1)
 	{
-		for (int32 i = 0; i < jedges11; i++)
+		for (int32 i = 1; i < jedges11; i++)
 		{
-			int jid = i;
+			int jid = i-1;
 			int jsource = i; // Ensures jsource is always valid within the index range
 
 			// Connected to random node 
