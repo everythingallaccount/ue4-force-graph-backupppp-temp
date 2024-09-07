@@ -10,7 +10,6 @@
 #define print(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 10, FColor::White,text)
 
 
-
 AKnowledgeGraph::AKnowledgeGraph()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -26,8 +25,6 @@ AKnowledgeGraph::~AKnowledgeGraph()
 }
 
 
-
-
 void AKnowledgeGraph::BeginPlay()
 {
 	Super::BeginPlay();
@@ -37,7 +34,11 @@ void AKnowledgeGraph::BeginPlay()
 	PrimaryActorTick.TickInterval = tick_interval;
 
 
-	InitOctree(FBox(FVector(-200, -200, -200), FVector(200, 200, 200)));
+	InitOctree(FBox(
+			FVector(-200, -200, -200),
+			FVector(200, 200, 200)
+		)
+	);
 
 
 	DoWork2();
