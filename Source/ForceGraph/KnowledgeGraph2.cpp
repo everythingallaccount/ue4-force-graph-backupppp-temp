@@ -23,14 +23,29 @@ void AKnowledgeGraph::DoWork1()
 	// Edge creation loop
 	int jedges11 = jnodes11; // Adjust the number of edges as needed to ensure coverage
 
-	for (int32 i = 0; i < jedges11; i++)
+	if (0)
 	{
-		int jid = i;
-		int jsource = i; // Ensures jsource is always valid within the index range
+		for (int32 i = 0; i < jedges11; i++)
+		{
+			int jid = i;
+			int jsource = i; // Ensures jsource is always valid within the index range
 
-		// Connected to random node 
-		int jtarget = FMath::RandRange(0, i - 1);
-		AddEdge(jid, jsource, jtarget);
+			// Connected to random node 
+			int jtarget = FMath::RandRange(0, i - 1);
+			AddEdge(jid, jsource, jtarget);
+		}
+	}
+	else
+	{
+		for (int32 i = 1; i < jedges11; i++)
+		{
+			int jid = i-1;
+			int jsource = i-1; // Ensures jsource is always valid within the index range
+
+			// Connected to random node 
+			int jtarget = i;
+			AddEdge(jid, jsource, jtarget);
+		}
 	}
 }
 
@@ -248,6 +263,8 @@ void AKnowledgeGraph::ApplyForces()
 			l * alpha * link.Value->strength;
 		new_v *= l;
 
+
+		ll("NEW V: " + new_v.ToString()+"link.Value->bias: " + FString::SanitizeFloat(link.Value->bias));
 		// Record targeted original velocity.
 		FVector target_original_velocity = target_node->velocity;
 
@@ -673,11 +690,19 @@ void AKnowledgeGraph::InitForces()
 
 	for (auto& link : all_links)
 	{
+
+		ll("all_nodes[link.Value->source]->numberOfConnected: " + FString::FromInt(all_nodes[link.Value->source]->numberOfConnected));
+
+
+		float ttttttttttt = all_nodes[link.Value->source]->numberOfConnected +
+			all_nodes[link.Value->target]->numberOfConnected;
+
 		float bias = all_nodes[link.Value->source]->numberOfConnected /
-		(
-			all_nodes[link.Value->source]->numberOfConnected +
-			all_nodes[link.Value->target]->numberOfConnected
-		);
+		ttttttttttt;
+
+
+		
+		ll( "!!!!!!!!!!!!!!!!!!!!!!!bias: " + FString::SanitizeFloat(bias));
 
 
 		if (biasinitway == 0)
@@ -688,7 +713,7 @@ void AKnowledgeGraph::InitForces()
 		{
 			link.Value->bias = bias;
 		}
-
+		ll("!!!!!!!!!!!!!!!!!!!!!!!bias: " + FString::SanitizeFloat(link.Value->bias));
 
 		link.Value->strength = 1.0 / fmin(all_nodes[link.Value->source]->numberOfConnected,
 		                                  all_nodes[link.Value->target]->numberOfConnected);
