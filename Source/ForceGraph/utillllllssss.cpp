@@ -42,3 +42,14 @@ void ll(const FString& StringToLog, int SeverityLevel, const FString& Prefix)
 		
 	}
 }
+
+FVector Jiggle(const FVector& Vec, float Magnitude)
+{
+	FVector RandomJitter;
+	RandomJitter.X = FMath::RandRange(-0.5f, 0.5f) * Magnitude;
+	RandomJitter.Y = FMath::RandRange(-0.5f, 0.5f) * Magnitude;
+	RandomJitter.Z = FMath::RandRange(-0.5f, 0.5f) * Magnitude;
+
+	return Vec + RandomJitter;
+}
+

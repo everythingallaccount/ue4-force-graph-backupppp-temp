@@ -141,6 +141,7 @@ void AKnowledgeGraph::DoWork2()
 		InitForces();
 	}
 }
+
 void AKnowledgeGraph::GenerateConnectedGraph(int32 NumClusters, int32 NodesPerCluster)
 {
 	if (!GetWorld()) return;
@@ -201,15 +202,6 @@ void AKnowledgeGraph::GenerateConnectedGraph(int32 NumClusters, int32 NodesPerCl
 	}
 }
 
-FVector Jiggle(const FVector& Vec, float Magnitude)
-{
-	FVector RandomJitter;
-	RandomJitter.X = FMath::RandRange(-0.5f, 0.5f) * Magnitude;
-	RandomJitter.Y = FMath::RandRange(-0.5f, 0.5f) * Magnitude;
-	RandomJitter.Z = FMath::RandRange(-0.5f, 0.5f) * Magnitude;
-
-	return Vec + RandomJitter;
-}
 
 void AKnowledgeGraph::ApplyForces()
 {
@@ -518,6 +510,38 @@ void AKnowledgeGraph::ApplyManyBody(AKnowledgeNode* kn)
 }
 
 
+
+
+
+FSimpleOctree::FSimpleOctree(const FVector& InOrigin, float InExtent) :
+	TOctree(InOrigin, InExtent)
+{
+}
+
+void FOctreeSematics::SetElementId(FOctreeSematics::FOctree& thisOctree, const FOctreeElement& Element,
+								   FOctreeElementId Id)
+{
+	((FSimpleOctree&)thisOctree).all_elements.Emplace(Element.MyActor->id, Id);
+}
+
+
+void AKnowledgeGraph::InitOctree(const FBox& inNewBounds)
+{
+	//OctreeData = new FSimpleOctree(FVector(0.0f, 0.0f, 0.0f), 100.0f);
+	OctreeData = new FSimpleOctree(inNewBounds.GetCenter(), inNewBounds.GetExtent().GetMax());
+}
+
+void AKnowledgeGraph::RemoveElement(int key)
+{
+	OctreeData->RemoveElement(OctreeData->all_elements[key]);
+	all_nodes.Remove(key);
+}
+
+void AKnowledgeGraph::AddOctreeElement(const FOctreeElement& inNewOctreeElement)
+{
+	OctreeData->AddElement(inNewOctreeElement);
+}
+
 void AKnowledgeGraph::InitNodes()
 {
 	if (0)
@@ -604,11 +628,6 @@ void AKnowledgeGraph::InitNodes()
 	}
 }
 
-void AKnowledgeGraph::InitOctree(const FBox& inNewBounds)
-{
-	//OctreeData = new FSimpleOctree(FVector(0.0f, 0.0f, 0.0f), 100.0f);
-	OctreeData = new FSimpleOctree(inNewBounds.GetCenter(), inNewBounds.GetExtent().GetMax());
-}
 
 void AKnowledgeGraph::InitForces()
 {
@@ -656,17 +675,6 @@ void AKnowledgeGraph::InitForces()
 	init = true;
 }
 
-void AKnowledgeGraph::RemoveElement(int key)
-{
-	OctreeData->RemoveElement(OctreeData->all_elements[key]);
-	all_nodes.Remove(key);
-}
-
-
-void AKnowledgeGraph::AddOctreeElement(const FOctreeElement& inNewOctreeElement)
-{
-	OctreeData->AddElement(inNewOctreeElement);
-}
 
 void AKnowledgeGraph::AddNode(int32 id, AKnowledgeNode* kn, FVector location)
 {
@@ -723,14 +731,4 @@ void AKnowledgeGraph::AddEdge(int32 id, int32 source, int32 target)
 }
 
 
-FSimpleOctree::FSimpleOctree(const FVector& InOrigin, float InExtent) :
-	TOctree(InOrigin, InExtent)
-{
-}
-
-void FOctreeSematics::SetElementId(FOctreeSematics::FOctree& thisOctree, const FOctreeElement& Element,
-                                   FOctreeElementId Id)
-{
-	((FSimpleOctree&)thisOctree).all_elements.Emplace(Element.MyActor->id, Id);
-}
 
