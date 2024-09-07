@@ -524,8 +524,9 @@ void AKnowledgeGraph::FindManyBodyForce(
 				{
 					if (kn->id == 7 && alpha > 0.2)
 					{
-						print(FString::FromInt(Sample.MyActor->id));
-						print((dir * Sample.MyActor->strength * alpha / l * mult).ToString());
+						// print(FString::FromInt(Sample.MyActor->id));
+						// print((dir * Sample.MyActor->strength * alpha / l * mult).ToString());
+
 					}
 				}
 
