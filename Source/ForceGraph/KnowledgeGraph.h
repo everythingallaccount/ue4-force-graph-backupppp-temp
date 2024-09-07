@@ -8,7 +8,7 @@
 #include "GameFramework/Actor.h"
 #include "Engine/World.h"
 #include "CoreMinimal.h"
-#include "SimulationSystem.h"
+
 #include "KnowledgeGraph.generated.h"
 
 /**
@@ -135,7 +135,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
 	// float alphaDecay = pow(alphaMin, 0.05);
-	float alphaDecay = 1 - std::pow(alphaMin, 1.0 / 300);
+	float alphaDecay = 1 - FMath::Pow(alphaMin, 1.0 / 300);
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
@@ -176,7 +176,7 @@ private:
 	bool init = false;
 
 	FSimpleOctree* OctreeData;
-	FSimulationSystem* SimulationSystem;
+	
 
 
 	// Called every frame

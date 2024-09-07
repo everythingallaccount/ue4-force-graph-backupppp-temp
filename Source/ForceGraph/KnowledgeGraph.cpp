@@ -5,7 +5,7 @@
 
 #include <random>
 
-#include "SimulationSystem.h"
+
 #include "utillllllssss.h"
 #define print(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 10, FColor::White,text)
 
@@ -15,8 +15,6 @@ AKnowledgeGraph::AKnowledgeGraph()
 	PrimaryActorTick.bCanEverTick = true;
 
 
-	// Useless not used it. 
-	SimulationSystem = new FSimulationSystem(GetWorld());
 }
 
 AKnowledgeGraph::~AKnowledgeGraph()
