@@ -200,3 +200,537 @@ void AKnowledgeGraph::GenerateConnectedGraph(int32 NumClusters, int32 NodesPerCl
 		AddEdge(i, ClusterCenterIDs[i], ClusterCenterIDs[i + 1]); // Use node IDs to connect cluster centers
 	}
 }
+
+FVector Jiggle(const FVector& Vec, float Magnitude)
+{
+	FVector RandomJitter;
+	RandomJitter.X = FMath::RandRange(-0.5f, 0.5f) * Magnitude;
+	RandomJitter.Y = FMath::RandRange(-0.5f, 0.5f) * Magnitude;
+	RandomJitter.Z = FMath::RandRange(-0.5f, 0.5f) * Magnitude;
+
+	return Vec + RandomJitter;
+}
+
+void AKnowledgeGraph::ApplyForces()
+{
+	// In here velocity of all notes are zeroed
+	// In the following for loop, In the first few loop, the velocity is 0. 
+
+	// link forces
+	// After loop, the velocity of all notes have been altered a little bit because of the link force already. 
+	for (auto& link : all_links)
+	{
+		auto source_node = all_nodes[link.Value->source];
+		auto target_node = all_nodes[link.Value->target];
+
+		FVector source_pos = source_node->GetActorLocation();
+		FVector source_velocity = source_node->velocity;
+
+		FVector target_pos = target_node->GetActorLocation();
+		FVector target_velocity = target_node->velocity;
+
+		// UE_LOG(LogTemp, Warning, TEXT("source VELOCITY1: %s"), *source_velocity.ToString());
+		// UE_LOG(LogTemp, Warning, TEXT("target VELOCITY1: %s"), *target_velocity.ToString());
+
+
+		FVector new_v = target_pos + target_velocity - source_pos - source_velocity;
+
+
+		if (new_v.IsNearlyZero())
+		{
+			new_v = Jiggle(new_v, 1e-6f);
+		}
+
+		float l = new_v.Size();
+		// UE_LOG(LogTemp, Warning, TEXT("!!!link.Value->distance: %f"), link.Value->distance);
+
+
+		// By looking at the javascript code, we can see strength Will only be computed when there is a change Of the graph structure to the graph.
+		l = (l - link.Value->distance) /
+			l * alpha * link.Value->strength;
+		new_v *= l;
+
+
+		if (0)
+		{
+			target_node->velocity -= new_v * (1 - link.Value->bias);
+		}
+		else
+		{
+			target_node->velocity -= new_v * (link.Value->bias);
+		}
+
+		source_node->velocity += new_v * (1 - link.Value->bias);
+
+
+		if (target_node->id == 7 && alpha > 0.2)
+			ll("target node id is 7 LINK VEL: " + (-1 * new_v * (1 - link.Value->bias)).ToString());
+
+
+		if (source_node->id == 7 && alpha > 0.2)
+			ll("LINK VEL: " + (new_v * (1 - link.Value->bias)).ToString());
+	}
+
+	if (1)
+	{
+		//charge forces
+		octree_node_strengths.Empty();
+		for (auto& node : all_nodes)
+		{
+			int key = node.Key;
+			auto kn = node.Value;
+
+
+			// Because the actor location hasn't changed when we compute the link force, so These two lines could actually be put in the start of the function. 
+
+			// If they are remove here，then why we do AddOctreeElement(ote) in AddNode?
+			RemoveElement(node.Key); //need to remove then update with new location when adding
+
+			AddNode(key, kn, kn->GetActorLocation());
+		}
+
+
+		// Most of the questions come from here。 
+		Accumulate();
+
+
+		for (auto& node : all_nodes)
+		{
+			ApplyManyBody(node.Value);
+		}
+	}
+}
+
+NodeStrength AKnowledgeGraph::AddUpChildren(
+	const FSimpleOctree::FNode& node,
+	FString node_id
+)
+{
+	if (!octree_node_strengths.Contains(node_id))
+	{
+		octree_node_strengths.Emplace(node_id, NodeStrength());
+	}
+	else
+	{
+		//reset
+		octree_node_strengths[node_id].strength = 0;
+		octree_node_strengths[node_id].direction = FVector(0, 0, 0);
+	}
+
+	if (!node.IsLeaf())
+	{
+		int count = 0;
+		float c = 0.0;
+		float strength = 0.0;
+		float weight = 0.0;
+		FVector tempvec;
+
+
+		FOREACH_OCTREE_CHILD_NODE(ChildRef)
+		{
+			//go find the leaves
+			if (
+
+				// ChildRef is a special structure, but basically store a number from one to 7. 
+				node.HasChild(ChildRef)
+			)
+			{
+				NodeStrength ns = AddUpChildren(
+					*node.GetChild(ChildRef),
+					node_id + FString::FromInt(count)
+				);
+				//add up children
+				//math for vector and strength
+				c = abs(ns.strength);
+
+				// Typically should be a positive integer, so strength will be same as weight. 
+				strength += ns.strength;
+
+				weight += c;
+
+
+				tempvec += c * ns.direction;
+
+				count++;
+			}
+		}
+		octree_node_strengths[node_id].strength = strength; //hash of ID of node for map
+		octree_node_strengths[node_id].direction = tempvec / weight;
+	}
+	else
+	{
+		for (FSimpleOctree::ElementConstIt ElementIt(node.GetElementIt()); ElementIt; ++ElementIt)
+		{
+			//all the way down to elements
+			const FOctreeElement& Sample = *ElementIt;
+
+			// So basically we add up all the strength inside a leaf node
+			octree_node_strengths[node_id].strength += Sample.MyActor->strength;
+			// When we summing up all the actual locations as a vector, it seems that it take an average location. 
+			octree_node_strengths[node_id].direction += Sample.MyActor->GetActorLocation();
+		}
+	}
+
+	// octree_node_strengths[node_id].direction.ToString(); //?
+	return octree_node_strengths[node_id];
+}
+
+//get weights for every node before applying
+void AKnowledgeGraph::Accumulate()
+{
+	ll("Accumulate--------------------------------------");
+	for (
+		FSimpleOctree::TConstIterator<> NodeIt(*OctreeData);
+		NodeIt.HasPendingNodes();
+		NodeIt.Advance()
+	)
+	{
+		const FSimpleOctree::FNode& CurrentNode = NodeIt.GetCurrentNode();
+		// UE_LOG(LogTemp, Warning, TEXT("Ready to add up children"));
+		AddUpChildren(CurrentNode, "0");
+		break;
+	}
+}
+
+//use nodes to find velocity
+void AKnowledgeGraph::FindManyBodyForce(
+	AKnowledgeNode* kn,
+	const FSimpleOctree::FNode& node,
+	const FOctreeNodeContext CurrentContext,
+	FString node_id)
+{
+	NodeStrength ns = octree_node_strengths[node_id];
+
+	//if no strength, ignore
+	//    if(ns.strength == 0)
+	//        return;
+
+	const FBoxCenterAndExtent& CurrentBounds = CurrentContext.Bounds;
+	FVector center = CurrentBounds.Center;
+	FVector width = CurrentBounds.Extent;
+	FVector dir = ns.direction - kn->GetActorLocation();
+
+	// Remember that direction is the sum of all the Actor locations of the elements in that note. 
+	float l = dir.Size() * dir.Size();
+
+	// if size of current box is less than distance between nodes
+	// This is used to stop recurring down the tree.
+	if (width.X * width.X / theta2 < l)
+	{
+		//        print("GOING IN HERE");
+		if (l < distancemax)
+		{
+			if (l < distancemin)
+				l = sqrt(distancemin * l);
+
+
+			if (kn->id == 7)
+			{
+				ll("aaaaaaaaaa");
+				ll(
+					(dir * ns.strength * alpha / l).ToString(), 2
+				);
+				ll("bbbbbbbbbb");
+			}
+			//print(FString::SanitizeFloat(ns.strength));
+
+			float mult = pow(ns.strength / nodeStrength, 1.0);
+			kn->velocity += dir * ns.strength * alpha / (l / 2.0) * mult;
+		}
+		return;
+	}
+
+	// if not leaf, get all children
+
+	// People do we have to check on L bigger than distance max?
+	// FOREACH_OCTREE_CHILD_NODE Will not run if the note is LeaF note. , even if L is bigger than distance max. 
+	if (!node.IsLeaf() || l >= distancemax)
+	{
+		//recurse down this dude
+		//        print("IM NO LEAF");
+		//print("NOT A LEAF");
+		int count = 0;
+		FOREACH_OCTREE_CHILD_NODE(ChildRef)
+		{
+			if (node.HasChild(ChildRef))
+			{
+				FindManyBodyForce(
+					kn,
+					*node.GetChild(ChildRef),
+					CurrentContext.GetChildContext(ChildRef),
+					node_id + FString::FromInt(count)
+				);
+				count++;
+			}
+		}
+	} //if leaf and close, apply elements directly
+	else if (node.IsLeaf())
+	{
+		//print("IM LEAF");
+		if (l < distancemin)
+		{
+			l = sqrt(distancemin * l);
+		}
+		for (FSimpleOctree::ElementConstIt ElementIt(node.GetElementIt()); ElementIt; ++ElementIt)
+		{
+			const FOctreeElement& Sample = *ElementIt;
+			if (Sample.MyActor->id != kn->id)
+			{
+				dir = Sample.MyActor->GetActorLocation() - kn->GetActorLocation();
+				l = dir.Size() * dir.Size();
+				float mult = pow(Sample.MyActor->numberOfConnected, 3.0);
+
+
+				if (0)
+				{
+					if (kn->id == 7 && alpha > 0.2)
+					{
+						print(FString::FromInt(Sample.MyActor->id));
+						print((dir * Sample.MyActor->strength * alpha / l * mult).ToString());
+					}
+				}
+
+				kn->velocity += dir * Sample.MyActor->strength * alpha / l * mult;
+			}
+		}
+	}
+}
+
+void AKnowledgeGraph::ApplyManyBody(AKnowledgeNode* kn)
+{
+	FVector dir;
+	if (kn->id == 7)
+		ll(
+			"ApplyManyBody--------------------------------------We are comparing all the other notes with this ID7 note. ");
+	for (
+		FSimpleOctree::TConstIterator<> NodeIt(*OctreeData);
+		NodeIt.HasPendingNodes();
+		NodeIt.Advance()
+	)
+	{
+		FindManyBodyForce(kn,
+		                  NodeIt.GetCurrentNode(),
+		                  NodeIt.GetCurrentContext(),
+		                  "0"
+		);
+		break;
+	}
+}
+
+
+void AKnowledgeGraph::InitNodes()
+{
+	if (0)
+	{
+		for (auto& node : all_nodes)
+		{
+			float radius = initialRadius * sqrt(node.Key);
+			float angle = node.Key * initialAngle;
+			FVector init_pos = FVector(cos(angle), sin(angle), tan(angle)) * radius;
+
+			// Remember that the note value stored the actual object. 
+			node.Value->SetActorLocation(init_pos, false);
+			//        print("init position");
+			//        print(node.Value->GetActorLocation().ToString());
+			node.Value->velocity = FVector(0, 0, 0);
+		}
+	}
+	else
+	{
+		// To replicate the node indexing from the original JS function
+		for (auto& node : all_nodes)
+		{
+			int index = node.Key;
+			// Calculate index-based radius differently based on the number of dimensions
+			float radius = 0;
+			int nDim = 3;
+			if (nDim > 2)
+			{
+				radius = initialRadius * cbrt(0.5f + index);
+			}
+			else if (nDim > 1)
+			{
+				radius = initialRadius * sqrt(0.5f + index);
+			}
+			else
+			{
+				radius = initialRadius * index;
+			}
+
+			float initialAngleRoll = PI * (3 - sqrt(5)); // Roll angle
+
+			// Following will be Math.PI * 20 / (9 + Math.sqrt(221));
+			float initialAngleYaw = PI * 20 / (9 + sqrt(221)); // Yaw angle if needed (3D)
+
+
+			float rollAngle = index * initialAngleRoll; // Roll angle
+			float yawAngle = index * initialAngleYaw; // Yaw angle if needed (3D)
+
+			FVector init_pos;
+
+			if (nDim == 1)
+			{
+				// 1D: Positions along X axis
+				init_pos = FVector(radius, 0, 0);
+			}
+			else if (nDim == 2)
+			{
+				// 2D: Circular distribution
+				init_pos = FVector(radius * cos(rollAngle), radius * sin(rollAngle), 0);
+			}
+			else
+			{
+				// 3D: Spherical distribution
+				init_pos = FVector(radius * sin(rollAngle) * cos(yawAngle), radius * cos(rollAngle),
+				                   radius * sin(rollAngle) * sin(yawAngle));
+			}
+
+			// Set the initial position of the node Actor
+			if (node.Value)
+			{
+				// Check if pointer is valid
+				node.Value->SetActorLocation(init_pos, false);
+
+				// Log the initial position - Uncomment to use
+				// UE_LOG(LogTemp, Warning, TEXT("Init position: %s"), *init_pos.ToString());
+
+				// Set initial velocity to zero
+				node.Value->velocity = FVector(0, 0, 0);
+			}
+
+			// Increment index for next node
+			// index++;
+		}
+	}
+}
+
+void AKnowledgeGraph::InitOctree(const FBox& inNewBounds)
+{
+	//OctreeData = new FSimpleOctree(FVector(0.0f, 0.0f, 0.0f), 100.0f);
+	OctreeData = new FSimpleOctree(inNewBounds.GetCenter(), inNewBounds.GetExtent().GetMax());
+}
+
+void AKnowledgeGraph::InitForces()
+{
+	//link forces
+	float n = all_nodes.Num();
+	float m = all_links.Num();
+
+	for (auto& link : all_links)
+	{
+		all_nodes[link.Value->source]->numberOfConnected += 1;
+		all_nodes[link.Value->target]->numberOfConnected += 1;
+	}
+
+	for (auto& link : all_links)
+	{
+		float bias = all_nodes[link.Value->source]->numberOfConnected /
+		(
+			all_nodes[link.Value->source]->numberOfConnected +
+			all_nodes[link.Value->target]->numberOfConnected
+		);
+
+
+		if (biasinitway == 0)
+		{
+			link.Value->bias = bias > 0.5 ? (1 - bias) * 0.5 + bias : bias * 0.5;
+		}
+		else
+		{
+			link.Value->bias = bias;
+		}
+
+
+		link.Value->strength = 1.0 / fmin(all_nodes[link.Value->source]->numberOfConnected,
+		                                  all_nodes[link.Value->target]->numberOfConnected);
+	}
+
+	//charge forces
+	for (auto& node : all_nodes)
+	{
+		node.Value->strength = node.Value->strength; // nothing for now
+	}
+
+	//center forces
+	//nothing
+	init = true;
+}
+
+void AKnowledgeGraph::RemoveElement(int key)
+{
+	OctreeData->RemoveElement(OctreeData->all_elements[key]);
+	all_nodes.Remove(key);
+}
+
+
+void AKnowledgeGraph::AddOctreeElement(const FOctreeElement& inNewOctreeElement)
+{
+	OctreeData->AddElement(inNewOctreeElement);
+}
+
+void AKnowledgeGraph::AddNode(int32 id, AKnowledgeNode* kn, FVector location)
+{
+	if (!all_nodes.Contains(id))
+	{
+		kn->id = id;
+
+		kn->strength = nodeStrength;
+
+
+		all_nodes.Emplace(id, kn);
+
+		// Useless not used it. 
+		SimulationSystem->all_nodes.Emplace(id, kn);
+
+		FOctreeElement ote;
+		ote.MyActor = kn;
+		ote.strength = 1.0; // update with strength
+		ote.BoxSphereBounds = FBoxSphereBounds(
+			location,
+			FVector(1.0f, 1.0f, 1.0f),
+			1.0f
+			);
+		AddOctreeElement(ote);
+	}
+}
+
+void AKnowledgeGraph::AddEdge(int32 id, int32 source, int32 target)
+{
+	UObject* SpawnClass = Cast<UObject>(
+		StaticLoadObject(UObject::StaticClass(),
+		                 NULL,
+		                 TEXT("Blueprint'/Game/cylinder.cylinder'")
+		)
+	);
+	UBlueprint* GeneratedObj = Cast<UBlueprint>(SpawnClass);
+
+
+	AKnowledgeEdge* e = GetWorld()->SpawnActor<AKnowledgeEdge>(
+		GeneratedObj->GeneratedClass
+	);
+
+	e->source = source;
+	e->target = target;
+	e->strength = 1; //temp
+	e->distance = edgeDistance;
+	all_links.Emplace(id, e);
+
+	// Useless not used it. 
+	SimulationSystem->all_links.Emplace(id, e);
+
+
+	UE_LOG(LogTemp, Warning, TEXT("SIMULATION SYSTEM LINKS: %d"), SimulationSystem->all_links.Num());
+}
+
+
+FSimpleOctree::FSimpleOctree(const FVector& InOrigin, float InExtent) :
+	TOctree(InOrigin, InExtent)
+{
+}
+
+void FOctreeSematics::SetElementId(FOctreeSematics::FOctree& thisOctree, const FOctreeElement& Element,
+                                   FOctreeElementId Id)
+{
+	((FSimpleOctree&)thisOctree).all_elements.Emplace(Element.MyActor->id, Id);
+}
+
