@@ -335,20 +335,20 @@ public:
 
 	/** Child node initialization constructor. */
 	FORCEINLINE FOctreeNodeContext3 GetChildContext(FOctreeChildNodeRef3 ChildRef, uint32 InInCullBits,
-	                                               uint32 InOutCullBits) const
+	                                                uint32 InOutCullBits) const
 	{
 		return FOctreeNodeContext3(FBoxCenterAndExtent3(
-			                          FVector(
-				                          Bounds.Center.X + ChildCenterOffset * NegativeOneOneTable[ChildRef.X],
-				                          Bounds.Center.Y + ChildCenterOffset * NegativeOneOneTable[ChildRef.Y],
-				                          Bounds.Center.Z + ChildCenterOffset * NegativeOneOneTable[ChildRef.Z]
-			                          ),
-			                          FVector(
-				                          ChildExtent,
-				                          ChildExtent,
-				                          ChildExtent
-			                          )
-		                          ), InInCullBits, InOutCullBits);
+			                           FVector(
+				                           Bounds.Center.X + ChildCenterOffset * NegativeOneOneTable[ChildRef.X],
+				                           Bounds.Center.Y + ChildCenterOffset * NegativeOneOneTable[ChildRef.Y],
+				                           Bounds.Center.Z + ChildCenterOffset * NegativeOneOneTable[ChildRef.Z]
+			                           ),
+			                           FVector(
+				                           ChildExtent,
+				                           ChildExtent,
+				                           ChildExtent
+			                           )
+		                           ), InInCullBits, InOutCullBits);
 	}
 
 	/**
