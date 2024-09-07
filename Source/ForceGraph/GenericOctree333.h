@@ -8,6 +8,7 @@
 
 #include "CoreMinimal.h"
 #include "GenericOctreePublic333.h"
+#include "Math/GenericOctree.h"
 #include "Templates/Models.h"
 
 /** A concise iteration over the children of an octree node. */
@@ -231,7 +232,7 @@ public:
 };
 
 /** The context of an octree node, derived from the traversal of the tree. */
-class FOctreeNodeContext3
+class FOctreeNodeContext3 : public FOctreeNodeContext
 {
 public:
 	/** The node bounds are expanded by their extent divided by LoosenessDenominator. */
@@ -291,8 +292,8 @@ public:
 	}
 
 	/** the float table {-1.0f,1.0f} **/
-	static CORE_API const float NegativeOneOneTable[2];
-
+	// static CORE_API const float NegativeOneOneTable[2];
+	// static const float NegativeOneOneTable[2];
 	/** Child node initialization constructor. */
 	FORCEINLINE FOctreeNodeContext3 GetChildContext(FOctreeChildNodeRef3 ChildRef) const
 	{
