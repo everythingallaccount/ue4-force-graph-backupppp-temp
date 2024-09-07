@@ -11,14 +11,14 @@
 /** 
  *	An identifier for an element in the octree. 
  */
-class FOctreeElementId
+class FOctreeElementId3
 {
 public:
 	template <typename, typename>
-	friend class TOctree;
+	friend class TOctree3;
 
 	/** Default constructor. */
-	FOctreeElementId()
+	FOctreeElementId3()
 		: Node(NULL)
 		  , ElementIndex(INDEX_NONE)
 	{
@@ -38,7 +38,7 @@ private:
 	int32 ElementIndex;
 
 	/** Initialization constructor. */
-	FOctreeElementId(const void* InNode, int32 InElementIndex)
+	FOctreeElementId3(const void* InNode, int32 InElementIndex)
 		: Node(InNode)
 		  , ElementIndex(InElementIndex)
 	{

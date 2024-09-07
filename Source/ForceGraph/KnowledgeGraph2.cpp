@@ -5,8 +5,8 @@
 
 
 #include "utillllllssss.h"
-#include "Misc/FileHelper.h"
-#include "Serialization/JsonSerializer.h"
+// #include "Misc/FileHelper.h"
+// #include "Serialization/JsonSerializer.h"
 
 #define print(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 10, FColor::White,text)
 
@@ -365,7 +365,7 @@ NodeStrength AKnowledgeGraph::AddUpChildren(
 		FVector tempvec;
 
 
-		FOREACH_OCTREE_CHILD_NODE(ChildRef)
+		FOREACH_OCTREE_CHILD_NODE3(ChildRef)
 		{
 			//go find the leaves
 			if (
@@ -435,8 +435,9 @@ void AKnowledgeGraph::Accumulate()
 void AKnowledgeGraph::FindManyBodyForce(
 	AKnowledgeNode* kn,
 	const FSimpleOctree::FNode& node,
-	const FOctreeNodeContext CurrentContext,
-	FString node_id)
+	const FOctreeNodeContext3 CurrentContext,
+	FString node_id
+	)
 {
 	NodeStrength ns = octree_node_strengths[node_id];
 
@@ -444,7 +445,7 @@ void AKnowledgeGraph::FindManyBodyForce(
 	//    if(ns.strength == 0)
 	//        return;
 
-	const FBoxCenterAndExtent& CurrentBounds = CurrentContext.Bounds;
+	const FBoxCenterAndExtent3& CurrentBounds = CurrentContext.Bounds;
 	FVector center = CurrentBounds.Center;
 	FVector width = CurrentBounds.Extent;
 	FVector dir = ns.direction - kn->GetActorLocation();
@@ -482,14 +483,14 @@ void AKnowledgeGraph::FindManyBodyForce(
 	// if not leaf, get all children
 
 	// People do we have to check on L bigger than distance max?
-	// FOREACH_OCTREE_CHILD_NODE Will not run if the note is LeaF note. , even if L is bigger than distance max. 
+	// FOREACH_OCTREE_CHILD_NODE3 Will not run if the note is LeaF note. , even if L is bigger than distance max. 
 	if (!node.IsLeaf() || l >= distancemax)
 	{
 		//recurse down this dude
 		//        print("IM NO LEAF");
 		//print("NOT A LEAF");
 		int count = 0;
-		FOREACH_OCTREE_CHILD_NODE(ChildRef)
+		FOREACH_OCTREE_CHILD_NODE3(ChildRef)
 		{
 			if (node.HasChild(ChildRef))
 			{
@@ -564,7 +565,7 @@ void AKnowledgeGraph::ApplyManyBody(AKnowledgeNode* kn)
 
 
 void FOctreeSematics::SetElementId(FOctreeSematics::FOctree& thisOctree, const FOctreeElement& Element,
-								   FOctreeElementId Id)
+								   FOctreeElementId3 Id)
 {
 	((FSimpleOctree&)thisOctree).all_elements.Emplace(Element.MyActor->id, Id);
 }
@@ -577,7 +578,7 @@ void AKnowledgeGraph::InitOctree(const FBox& inNewBounds)
 }
 
 FSimpleOctree::FSimpleOctree(const FVector& InOrigin, float InExtent) :
-	TOctree(InOrigin, InExtent)
+	TOctree3(InOrigin, InExtent)
 {
 }
 

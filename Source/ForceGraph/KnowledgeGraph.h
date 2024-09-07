@@ -4,7 +4,7 @@
 
 #include "KnowledgeNode.h"
 #include "KnowledgeEdge.h"
-#include "Math/GenericOctree.h"
+#include "GenericOctree333.h"
 #include "GameFramework/Actor.h"
 #include "Engine/World.h"
 #include "CoreMinimal.h"
@@ -55,7 +55,7 @@ struct FOctreeSematics
 	enum { MaxNodeDepth = 12 };
 
 	typedef TInlineAllocator<MaxElementsPerLeaf> ElementAllocator;
-	typedef TOctree<FOctreeElement, FOctreeSematics> FOctree;
+	typedef TOctree3<FOctreeElement, FOctreeSematics> FOctree;
 
 	/**
 	* Get the bounding box of the provided octree element. In this case, the box
@@ -75,7 +75,7 @@ struct FOctreeSematics
 		return A.MyActor == B.MyActor;
 	}
 
-	static void SetElementId(FOctreeSematics::FOctree& thisOctree, const FOctreeElement& Element, FOctreeElementId Id);
+	static void SetElementId(FOctreeSematics::FOctree& thisOctree, const FOctreeElement& Element, FOctreeElementId3 Id);
 	//need to define this later
 
 	FORCEINLINE static void ApplyOffset(FOctreeElement& Element, FVector Offset)
@@ -86,11 +86,11 @@ struct FOctreeSematics
 	}
 };
 
-class FSimpleOctree : public TOctree<FOctreeElement, FOctreeSematics>
+class FSimpleOctree : public TOctree3<FOctreeElement, FOctreeSematics>
 {
 public:
 	FSimpleOctree(const FVector& InOrigin, float InExtent);
-	TMap<int32, FOctreeElementId> all_elements; //to keep track of foctreeelementid
+	TMap<int32, FOctreeElementId3> all_elements; //to keep track of FOctreeElementId3
 };
 
 UCLASS()
@@ -117,7 +117,7 @@ public:
 	NodeStrength AddUpChildren(const FSimpleOctree::FNode& node, FString node_id);
 	void ApplyManyBody(AKnowledgeNode* kn);
 	void FindManyBodyForce(AKnowledgeNode* kn, const FSimpleOctree::FNode& node,
-	                       const FOctreeNodeContext CurrentContext, FString node_id);
+	                       const FOctreeNodeContext3 CurrentContext, FString node_id);
 	
 
 

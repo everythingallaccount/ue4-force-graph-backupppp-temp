@@ -10,30 +10,30 @@
 #include "CoreFwd.h"
 #include "Logging/LogMacros.h"
 
-class FBoxCenterAndExtent;
-class FOctreeChildNodeRef;
-class FOctreeChildNodeSubset;
-class FOctreeElementId;
-class FOctreeNodeContext;
+class FBoxCenterAndExtent3;
+class FOctreeChildNodeRef3;
+class FOctreeChildNodeSubset3;
+class FOctreeElementId3;
+class FOctreeNodeContext3;
 struct FMath;
 template <typename ElementType, typename OctreeSemantics>
-class TOctree;
+class TOctree3;
 template <typename T>
 struct TTypeTraits;
 
-CORE_API DECLARE_LOG_CATEGORY_EXTERN(LogGenericOctree, Log, All);
+CORE_API DECLARE_LOG_CATEGORY_EXTERN(LogGenericOctree3, Log, All);
 
-FORCEINLINE bool FOctreeChildNodeSubset::Contains(FOctreeChildNodeRef ChildRef) const
+FORCEINLINE bool FOctreeChildNodeSubset3::Contains(FOctreeChildNodeRef3 ChildRef) const
 {
 	// This subset contains the child if it has all the bits set that are set for the subset containing only the child node.
-	const FOctreeChildNodeSubset ChildSubset(ChildRef);
+	const FOctreeChildNodeSubset3 ChildSubset(ChildRef);
 	return (ChildBits & ChildSubset.ChildBits) == ChildSubset.ChildBits;
 }
 
-FORCEINLINE FOctreeChildNodeSubset FOctreeNodeContext::GetIntersectingChildren(
-	const FBoxCenterAndExtent& QueryBounds) const
+FORCEINLINE FOctreeChildNodeSubset3 FOctreeNodeContext3::GetIntersectingChildren(
+	const FBoxCenterAndExtent3& QueryBounds) const
 {
-	FOctreeChildNodeSubset Result;
+	FOctreeChildNodeSubset3 Result;
 
 	// Load the query bounding box values as VectorRegisters.
 	const VectorRegister QueryBoundsCenter = VectorLoadAligned(&QueryBounds.Center);
@@ -69,9 +69,9 @@ FORCEINLINE FOctreeChildNodeSubset FOctreeNodeContext::GetIntersectingChildren(
 	return Result;
 }
 
-FORCEINLINE FOctreeChildNodeRef FOctreeNodeContext::GetContainingChild(const FBoxCenterAndExtent& QueryBounds) const
+FORCEINLINE FOctreeChildNodeRef3 FOctreeNodeContext3::GetContainingChild(const FBoxCenterAndExtent3& QueryBounds) const
 {
-	FOctreeChildNodeRef Result;
+	FOctreeChildNodeRef3 Result;
 
 	// Load the query bounding box values as VectorRegisters.
 	const VectorRegister QueryBoundsCenter = VectorLoadAligned(&QueryBounds.Center);
@@ -104,7 +104,7 @@ FORCEINLINE FOctreeChildNodeRef FOctreeNodeContext::GetContainingChild(const FBo
 }
 
 template <typename ElementType, typename OctreeSemantics>
-void TOctree<ElementType, OctreeSemantics>::AddElement(
+void TOctree3<ElementType, OctreeSemantics>::AddElement(
 	typename TTypeTraits<ElementType>::ConstInitType Element
 )
 {
@@ -112,13 +112,13 @@ void TOctree<ElementType, OctreeSemantics>::AddElement(
 }
 
 template <typename ElementType, typename OctreeSemantics>
-void TOctree<ElementType, OctreeSemantics>::AddElementToNode(
+void TOctree3<ElementType, OctreeSemantics>::AddElementToNode(
 	typename TTypeTraits<ElementType>::ConstInitType Element,
 	const FNode& InNode,
-	const FOctreeNodeContext& InContext
+	const FOctreeNodeContext3& InContext
 )
 {
-	const FBoxCenterAndExtent ElementBounds(OctreeSemantics::GetBoundingBox(Element));
+	const FBoxCenterAndExtent3 ElementBounds(OctreeSemantics::GetBoundingBox(Element));
 
 	for (
 		TConstIterator<TInlineAllocator<1>> NodeIt(InNode, InContext);
@@ -127,7 +127,7 @@ void TOctree<ElementType, OctreeSemantics>::AddElementToNode(
 	)
 	{
 		const FNode& Node = NodeIt.GetCurrentNode();
-		const FOctreeNodeContext& Context = NodeIt.GetCurrentContext();
+		const FOctreeNodeContext3& Context = NodeIt.GetCurrentContext();
 		const bool bIsLeaf = Node.IsLeaf();
 
 		bool bAddElementToThisNode = false;
@@ -173,7 +173,7 @@ void TOctree<ElementType, OctreeSemantics>::AddElementToNode(
 		else
 		{
 			// If this isn't a leaf, find a child that entirely contains the element.
-			const FOctreeChildNodeRef ChildRef = Context.GetContainingChild(ElementBounds);
+			const FOctreeChildNodeRef3 ChildRef = Context.GetContainingChild(ElementBounds);
 			if (ChildRef.IsNULL())
 			{
 				// If none of the children completely contain the element, add it to this node directly.
@@ -184,7 +184,7 @@ void TOctree<ElementType, OctreeSemantics>::AddElementToNode(
 				// Create the child node if it hasn't been created yet.
 				if (!Node.Children[ChildRef.Index])
 				{
-					Node.Children[ChildRef.Index] = new typename TOctree<ElementType, OctreeSemantics>::FNode(&Node);
+					Node.Children[ChildRef.Index] = new typename TOctree3<ElementType, OctreeSemantics>::FNode(&Node);
 					SetOctreeMemoryUsage(this, TotalSizeBytes + sizeof(*Node.Children[ChildRef.Index]));
 				}
 
@@ -201,7 +201,7 @@ void TOctree<ElementType, OctreeSemantics>::AddElementToNode(
 			SetOctreeMemoryUsage(this, TotalSizeBytes + sizeof(ElementType));
 
 			// Set the element's ID.
-			SetElementId(Element, FOctreeElementId(&Node, Node.Elements.Num() - 1));
+			SetElementId(Element, FOctreeElementId3(&Node, Node.Elements.Num() - 1));
 			return;
 		}
 	}
@@ -218,7 +218,7 @@ void TOctree<ElementType, OctreeSemantics>::AddElementToNode(
 }
 
 template <typename ElementType, typename OctreeSemantics>
-void TOctree<ElementType, OctreeSemantics>::RemoveElement(FOctreeElementId ElementId)
+void TOctree3<ElementType, OctreeSemantics>::RemoveElement(FOctreeElementId3 ElementId)
 {
 	check(ElementId.IsValidId());
 
@@ -269,12 +269,12 @@ void TOctree<ElementType, OctreeSemantics>::RemoveElement(FOctreeElementId Eleme
 
 						// Update the external element id for the element that's being collapsed.
 						SetElementId(CollapseNode->Elements[NewElementIndex],
-						             FOctreeElementId(CollapseNode, NewElementIndex));
+						             FOctreeElementId3(CollapseNode, NewElementIndex));
 					}
 				}
 
 				// Recursively visit all child nodes.
-				FOREACH_OCTREE_CHILD_NODE(ChildRef)
+				FOREACH_OCTREE_CHILD_NODE3(ChildRef)
 				{
 					if (ChildNode.HasChild(ChildRef))
 					{
@@ -284,7 +284,7 @@ void TOctree<ElementType, OctreeSemantics>::RemoveElement(FOctreeElementId Eleme
 			}
 
 			// Free the child nodes.
-			FOREACH_OCTREE_CHILD_NODE(ChildRef)
+			FOREACH_OCTREE_CHILD_NODE3(ChildRef)
 			{
 				if (CollapseNode->Children[ChildRef.Index])
 				{
@@ -302,7 +302,7 @@ void TOctree<ElementType, OctreeSemantics>::RemoveElement(FOctreeElementId Eleme
 }
 
 template <typename ElementType, typename OctreeSemantics>
-ElementType& TOctree<ElementType, OctreeSemantics>::GetElementById(FOctreeElementId ElementId)
+ElementType& TOctree3<ElementType, OctreeSemantics>::GetElementById(FOctreeElementId3 ElementId)
 {
 	check(ElementId.IsValidId());
 	FNode* ElementIdNode = (FNode*)ElementId.Node;
@@ -310,7 +310,7 @@ ElementType& TOctree<ElementType, OctreeSemantics>::GetElementById(FOctreeElemen
 }
 
 template <typename ElementType, typename OctreeSemantics>
-const ElementType& TOctree<ElementType, OctreeSemantics>::GetElementById(FOctreeElementId ElementId) const
+const ElementType& TOctree3<ElementType, OctreeSemantics>::GetElementById(FOctreeElementId3 ElementId) const
 {
 	check(ElementId.IsValidId());
 	FNode* ElementIdNode = (FNode*)ElementId.Node;
@@ -318,7 +318,7 @@ const ElementType& TOctree<ElementType, OctreeSemantics>::GetElementById(FOctree
 }
 
 template <typename ElementType, typename OctreeSemantics>
-bool TOctree<ElementType, OctreeSemantics>::IsValidElementId(FOctreeElementId ElementId) const
+bool TOctree3<ElementType, OctreeSemantics>::IsValidElementId(FOctreeElementId3 ElementId) const
 {
 	return ElementId.IsValidId()
 		&& ElementId.ElementIndex != INDEX_NONE
@@ -326,7 +326,7 @@ bool TOctree<ElementType, OctreeSemantics>::IsValidElementId(FOctreeElementId El
 };
 
 template <typename ElementType, typename OctreeSemantics>
-void TOctree<ElementType, OctreeSemantics>::DumpStats() const
+void TOctree3<ElementType, OctreeSemantics>::DumpStats() const
 {
 	int32 NumNodes = 0;
 	int32 NumLeaves = 0;
@@ -354,7 +354,7 @@ void TOctree<ElementType, OctreeSemantics>::DumpStats() const
 		}
 		NodeElementDistribution[CurrentNodeElementCount]++;
 
-		FOREACH_OCTREE_CHILD_NODE(ChildRef)
+		FOREACH_OCTREE_CHILD_NODE3(ChildRef)
 		{
 			if (CurrentNode.HasChild(ChildRef))
 			{
@@ -379,16 +379,16 @@ void TOctree<ElementType, OctreeSemantics>::DumpStats() const
 }
 
 template <typename ElementType, typename OctreeSemantics>
-FORCEINLINE void SetOctreeMemoryUsage(TOctree<ElementType, OctreeSemantics>* Octree, int32 NewSize)
+FORCEINLINE void SetOctreeMemoryUsage(TOctree3<ElementType, OctreeSemantics>* Octree, int32 NewSize)
 {
 	Octree->TotalSizeBytes = NewSize;
 }
 
 template <typename ElementType, typename OctreeSemantics>
-TOctree<ElementType, OctreeSemantics>::TOctree(const FVector& InOrigin, float InExtent)
+TOctree3<ElementType, OctreeSemantics>::TOctree3(const FVector& InOrigin, float InExtent)
 	: RootNode(NULL)
 	  , RootNodeContext(
-		  FBoxCenterAndExtent(
+		  FBoxCenterAndExtent3(
 			  InOrigin,
 			  FVector(InExtent, InExtent, InExtent)
 		  ),
@@ -397,27 +397,27 @@ TOctree<ElementType, OctreeSemantics>::TOctree(const FVector& InOrigin, float In
 	  )
 	  , MinLeafExtent(
 		  InExtent * FMath::Pow(
-			  (1.0f + 1.0f / (float)FOctreeNodeContext::LoosenessDenominator)
+			  (1.0f + 1.0f / (float)FOctreeNodeContext3::LoosenessDenominator)
 			  /
 			  2.0f,
 			  OctreeSemantics::MaxNodeDepth)
 	  )
 	  , TotalSizeBytes(0)
 {
-	ll("TOctree::TOctree~~~~~~~~~~Inside source code~~~~~~~~~~");
+	ll("TOctree3::TOctree3~~~~~~~~~~Inside source code~~~~~~~~~~");
 
 	// adsad
 }
 
 template <typename ElementType, typename OctreeSemantics>
-TOctree<ElementType, OctreeSemantics>::TOctree()
+TOctree3<ElementType, OctreeSemantics>::TOctree3()
 	: RootNode(nullptr)
 {
-	EnsureRetrievingVTablePtrDuringCtor(TEXT("TOctree()"));
+	EnsureRetrievingVTablePtrDuringCtor(TEXT("TOctree3()"));
 }
 
 template <typename ElementType, typename OctreeSemantics>
-void TOctree<ElementType, OctreeSemantics>::ApplyOffset(const FVector& InOffset, bool bGlobalOctree)
+void TOctree3<ElementType, OctreeSemantics>::ApplyOffset(const FVector& InOffset, bool bGlobalOctree)
 {
 	// Shift elements
 	RootNode.ApplyOffset(InOffset);
@@ -440,7 +440,7 @@ void TOctree<ElementType, OctreeSemantics>::ApplyOffset(const FVector& InOffset,
 	{
 		const auto& CurrentNode = NodeIt.GetCurrentNode();
 
-		FOREACH_OCTREE_CHILD_NODE(ChildRef)
+		FOREACH_OCTREE_CHILD_NODE3(ChildRef)
 		{
 			if (CurrentNode.HasChild(ChildRef))
 			{
