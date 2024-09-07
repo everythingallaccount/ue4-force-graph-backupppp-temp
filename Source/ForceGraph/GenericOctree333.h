@@ -7,7 +7,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GenericOctreePublic.h"
+#include "GenericOctreePublic333.h"
 #include "Templates/Models.h"
 
 /** A concise iteration over the children of an octree node. */
@@ -797,5 +797,5 @@ protected:
 	}
 };
 
-#include "GenericOctree.inl"
+#include "GenericOctree333.inl"
 
