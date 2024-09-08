@@ -381,7 +381,7 @@ NodeStrength AKnowledgeGraph::AddUpChildren(
 	if (!node.IsLeaf())
 	{
 		int count = 0;
-		float c = 0.0;
+		float c;
 		float strength = 0.0;
 		float weight = 0.0;
 		FVector tempvec;
@@ -404,7 +404,7 @@ NodeStrength AKnowledgeGraph::AddUpChildren(
 				//math for vector and strength
 				c = abs(ns.strength);
 
-				// Typically should be a positive integer, so strength will be same as weight. 
+				 
 				strength += ns.strength;
 
 				weight += c;
@@ -415,7 +415,17 @@ NodeStrength AKnowledgeGraph::AddUpChildren(
 				count++;
 			}
 		}
+
+		// Check in the original source code. There is one Javascript line that this haven't implemented. '
+
+
+
+
+		// strength *= Math.sqrt(4 / numChildren); // scale accumulated strength according to number of dimensions
 		octree_node_strengths[node_id].strength = strength; //hash of ID of node for map
+
+
+		
 		octree_node_strengths[node_id].direction = tempvec / weight;
 	}
 	else
@@ -468,8 +478,11 @@ void AKnowledgeGraph::FindManyBodyForce(
 	//        return;
 
 	const FBoxCenterAndExtent3& CurrentBounds = CurrentContext.Bounds;
-	FVector center = CurrentBounds.Center;
+	// FVector center = CurrentBounds.Center;
 	FVector width = CurrentBounds.Extent;
+
+
+	
 	FVector dir = ns.direction - kn->GetActorLocation();
 
 	// Remember that direction is the sum of all the Actor locations of the elements in that note. 
@@ -482,6 +495,33 @@ void AKnowledgeGraph::FindManyBodyForce(
 		//        print("GOING IN HERE");
 		if (l < distancemax)
 		{
+			if (dir.X==0)
+			{
+				// Assign a random value   // return (random() - 0.5) * 1e-6;
+				dir.X = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
+				// l += x * x;
+				l += dir.X * dir.X;
+				
+			}
+			if (dir.Y==0)
+			{
+				// Assign a random value   // return (random() - 0.5) * 1e-6;
+				dir.Y = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
+				// l += x * x;
+				l += dir.Y * dir.Y;
+				
+			}
+			if (dir.Z==0)
+			{
+				// Assign a random value   // return (random() - 0.5) * 1e-6;
+				dir.Z = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
+				// l += x * x;
+				l += dir.Z * dir.Z;
+			}
+			
+
+
+			
 			if (l < distancemin)
 				l = sqrt(distancemin * l);
 
@@ -496,8 +536,8 @@ void AKnowledgeGraph::FindManyBodyForce(
 			}
 			//print(FString::SanitizeFloat(ns.strength));
 
-			float mult = pow(ns.strength / nodeStrength, 1.0);
-			kn->velocity += dir * ns.strength * alpha / (l / 2.0) * mult;
+			// float mult = pow(ns.strength / nodeStrength, 1.0);
+			kn->velocity += dir * ns.strength * alpha / l;
 		}
 		return;
 	}

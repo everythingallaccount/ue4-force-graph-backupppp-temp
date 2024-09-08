@@ -5,6 +5,8 @@
 // This defines a callback for traversal
 // -----------------------------------------------------------------------------
 
+#include <cstddef>
+#include <cstring>
 class Octree;
 typedef bool (*callback)(const Octree& o, void* data);
 
