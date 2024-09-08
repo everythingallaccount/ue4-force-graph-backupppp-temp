@@ -598,8 +598,12 @@ void AKnowledgeGraph::InitOctree(const FBox& inNewBounds)
 	}
 
 	ll("InitOctree--------------------------------------");
-	
-	OctreeData = new FSimpleOctree(inNewBounds.GetCenter(), inNewBounds.GetExtent().GetMax());
+
+	FVector Vector1 = inNewBounds.GetCenter();
+	float Max = inNewBounds.GetExtent().GetMax();
+	ll("Vector1: " + Vector1.ToString() + " Max: " + FString::SanitizeFloat(Max));
+
+	OctreeData = new FSimpleOctree(Vector1, Max);
 }
 
 FSimpleOctree::FSimpleOctree(const FVector& InOrigin, const float InExtent) :

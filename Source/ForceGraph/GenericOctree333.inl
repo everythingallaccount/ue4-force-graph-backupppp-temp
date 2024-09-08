@@ -87,16 +87,30 @@ FORCEINLINE FOctreeChildNodeRef3 FOctreeNodeContext3::GetContainingChild(const F
 	                                                               QueryBoundsCenter);
 
 	// If the query bounds isn't entirely inside the bounding box of the child it's closest to, it's not contained by any of the child nodes.
-	const VectorRegister MinDifference = VectorMin(PositiveCenterDifference, NegativeCenterDifference);
-	if (VectorAnyGreaterThan(VectorAdd(QueryBoundsExtent,MinDifference), VectorLoadFloat1(&ChildExtent)))
+	const VectorRegister MinDifference = VectorMin(
+		PositiveCenterDifference,
+		NegativeCenterDifference
+	);
+
+	if (VectorAnyGreaterThan(
+			VectorAdd(QueryBoundsExtent,MinDifference),
+			VectorLoadFloat1(&ChildExtent)
+		)
+	)
 	{
 		Result.bNULL = true;
 	}
 	else
 	{
 		// Return the child node that the query is closest to as the containing child.
-		Result.X = VectorAnyGreaterThan(VectorReplicate(QueryBoundsCenter,0), VectorReplicate(BoundsCenter,0)) != false;
-		Result.Y = VectorAnyGreaterThan(VectorReplicate(QueryBoundsCenter,1), VectorReplicate(BoundsCenter,1)) != false;
+		Result.X = VectorAnyGreaterThan(
+			VectorReplicate(QueryBoundsCenter,0),
+			VectorReplicate(BoundsCenter,0)
+		) != false;
+		Result.Y = VectorAnyGreaterThan(
+			VectorReplicate(QueryBoundsCenter,1),
+			VectorReplicate(BoundsCenter,1)
+		) != false;
 		Result.Z = VectorAnyGreaterThan(VectorReplicate(QueryBoundsCenter,2), VectorReplicate(BoundsCenter,2)) != false;
 	}
 
@@ -120,7 +134,7 @@ void TOctree3<ElementType, OctreeSemantics>::AddElementToNode(
 )
 {
 	ll("TOctree3::AddElementToNode!!!!!!!!!!!!~~~~~~~~~~~~~~~~~~~~");
-	
+
 	auto bounds = OctreeSemantics::GetBoundingBox(Element);
 
 	// static_assert(std::is_same<decltype(bounds), FBoxCenterAndExtent3>::value, "GetBoundingBox(Element) must return FBoxCenterAndExtent3");
@@ -130,23 +144,18 @@ void TOctree3<ElementType, OctreeSemantics>::AddElementToNode(
 
 
 	ll("!!!!!!!AddElementToNode:  type of bounds: " + FString(typeid(bounds).name()));
-	
+
 	// std::cout << "Type of bounds: " << typeid(bounds).name() << std::endl;
 
 
-
-
 	const FBoxCenterAndExtent3 ElementBounds(bounds);
-		
+
 	for (
 		TConstIterator<TInlineAllocator<1>> NodeIt(InNode, InContext);
 		NodeIt.HasPendingNodes();
 		NodeIt.Advance()
 	)
 	{
-
-
-		
 		const FNode& Node = NodeIt.GetCurrentNode();
 
 
