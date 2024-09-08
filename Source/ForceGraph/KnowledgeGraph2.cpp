@@ -753,18 +753,24 @@ void AKnowledgeGraph::AddNode(int32 id, AKnowledgeNode* kn, FVector location)
 {
 	if (!all_nodes.Contains(id))
 	{
-		kn->id = id;
-
-		kn->strength = nodeStrength;
 		
+		
+		kn->id = id;
+		kn->strength = nodeStrength;
 		all_nodes.Emplace(id, kn);
 
 		FOctreeElement ote;
 		ote.MyActor = kn;
 		ote.strength = 1.0; // update with strength
+
+		float bounds = 1.0f;
 		ote.BoxSphereBounds = FBoxSphereBounds(
 			location,
-			FVector(1.0f, 1.0f, 1.0f),
+			FVector(
+				1.0f,
+				1.0f,
+				1.0f
+				),
 			1.0f
 		);
 
