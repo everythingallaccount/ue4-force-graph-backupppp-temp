@@ -371,6 +371,7 @@ NodeStrength AKnowledgeGraph::AddUpChildren(
 	FString node_id
 )
 {
+	ll("AddUpChildren--------------------------------------");
 	if (!octree_node_strengths.Contains(node_id))
 	{
 		octree_node_strengths.Emplace(node_id, NodeStrength());
@@ -384,6 +385,7 @@ NodeStrength AKnowledgeGraph::AddUpChildren(
 
 	if (!node.IsLeaf())
 	{
+		
 		int count = 0;
 		float c;
 		float strength = 0.0;
@@ -472,13 +474,20 @@ void AKnowledgeGraph::FindManyBodyForce(
 	FString node_id
 )
 {
+	
 	NodeStrength ns = octree_node_strengths[node_id];
-
+	ll("FindManyBodyForce--------------------------------------");
+	
 	//if no strength, ignore
 	//    if(ns.strength == 0)
 	//        return;
 
 	const FBoxCenterAndExtent3& CurrentBounds = CurrentContext.Bounds;
+	ll("CurrentBounds.Center: " + CurrentBounds.Center.ToString());
+	ll("CurrentBounds.Extent: " + CurrentBounds.Extent.ToString());
+	
+
+	
 	// FVector center = CurrentBounds.Center;
 	FVector width = CurrentBounds.Extent;
 
