@@ -32,11 +32,18 @@ void AKnowledgeGraph::BeginPlay()
 	PrimaryActorTick.TickInterval = tick_interval;
 
 
-	InitOctree(FBox(
-			FVector(-200, -200, -200),
-			FVector(200, 200, 200)
-		)
-	);
+	if (0)
+	{
+		InitOctree(FBox(
+				FVector(-200, -200, -200),
+				FVector(200, 200, 200)
+			)
+		);
+	}
+	else
+	{
+		
+	}
 
 
 	DoWork2();

@@ -18,7 +18,7 @@ void AKnowledgeGraph::DoWork1()
 	{
 		int jid = i;
 		AKnowledgeNode* kn = GetWorld()->SpawnActor<AKnowledgeNode>();
-		AddNode(jid, kn, FVector(0, 0, 0));
+		AddNode1(jid, kn);
 	}
 
 	// Edge creation loop
@@ -303,6 +303,16 @@ void AKnowledgeGraph::ApplyForces()
 	{
 		//charge forces
 		octree_node_strengths.Empty();
+
+		// Instead of removing the elements we create a new tree again. 	
+		ll("Potential memory leak When creating a new tree while not deleting the old tree. "); 
+		InitOctree(FBox(
+				FVector(-200, -200, -200),
+				FVector(200, 200, 200)
+			)
+		);
+		
+		
 		for (auto& node : all_nodes)
 		{
 			int key = node.Key;
@@ -321,16 +331,8 @@ void AKnowledgeGraph::ApplyForces()
 			}
 			else
 			{
-				// Instead of removing the elements we create a new tree again. 	
-				ll("Potential memory leak When creating a new tree while not deleting the old tree. "); 
 				
-				InitOctree(FBox(
-						FVector(-200, -200, -200),
-						FVector(200, 200, 200)
-					)
-				);
 				AddNode(key, kn, kn->GetActorLocation());
-
 				
 			}
 
@@ -747,17 +749,27 @@ void AKnowledgeGraph::CalculateBiasstrengthOflinks()
 	//nothing
 	init = true;
 }
+void AKnowledgeGraph::AddNode1(int32 id, AKnowledgeNode* kn)
+{
+	if (!all_nodes.Contains(id))
+	{
+		kn->id = id;
+		kn->strength = nodeStrength;
+		all_nodes.Emplace(id, kn);
+
+	}
+	else
+	{
+		ll("Fatal error: Node with ID " + FString::FromInt(id) + " already exists!");
+	}
+	
+}
 
 
 void AKnowledgeGraph::AddNode(int32 id, AKnowledgeNode* kn, FVector location)
 {
-	if (!all_nodes.Contains(id))
+	if (all_nodes.Contains(id))
 	{
-		
-		
-		kn->id = id;
-		kn->strength = nodeStrength;
-		all_nodes.Emplace(id, kn);
 
 		FOctreeElement ote;
 		ote.MyActor = kn;
@@ -773,7 +785,7 @@ void AKnowledgeGraph::AddNode(int32 id, AKnowledgeNode* kn, FVector location)
 				),
 			1.0f
 		);
-
+		
 		AddOctreeElement(ote);
 	}
 }

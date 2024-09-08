@@ -106,6 +106,7 @@ public:
 	void DoWork2();
 	void DoWork1();
 
+	void AddNode1(int32 id, AKnowledgeNode* kn);
 	void AddNode(int32 id, AKnowledgeNode* kn, FVector location);
 	void AddEdge(int32 id, int32 source, int32 target);
 	void AddOctreeElement(const FOctreeElement& inNewOctreeElement);
