@@ -108,6 +108,7 @@ void TOctree3<ElementType, OctreeSemantics>::AddElement(
 	typename TTypeTraits<ElementType>::ConstInitType Element
 )
 {
+	ll("TOctree3::AddElement!!!!!!!!!!!!~~~~~~~~~~~~~~~~~~~~");
 	AddElementToNode(Element, RootNode, RootNodeContext);
 }
 
@@ -118,7 +119,8 @@ void TOctree3<ElementType, OctreeSemantics>::AddElementToNode(
 	const FOctreeNodeContext3& InContext
 )
 {
-
+	ll("TOctree3::AddElementToNode!!!!!!!!!!!!~~~~~~~~~~~~~~~~~~~~");
+	
 	auto bounds = OctreeSemantics::GetBoundingBox(Element);
 
 	// static_assert(std::is_same<decltype(bounds), FBoxCenterAndExtent3>::value, "GetBoundingBox(Element) must return FBoxCenterAndExtent3");
