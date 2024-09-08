@@ -3,7 +3,6 @@
 #include <random>
 
 
-
 #include "utillllllssss.h"
 // #include "Misc/FileHelper.h"
 // #include "Serialization/JsonSerializer.h"
@@ -29,7 +28,7 @@ void AKnowledgeGraph::DoWork1()
 	{
 		for (int32 i = 1; i < jedges11; i++)
 		{
-			int jid = i-1;
+			int jid = i - 1;
 			int jsource = i; // Ensures jsource is always valid within the index range
 
 			// Connected to random node 
@@ -41,8 +40,8 @@ void AKnowledgeGraph::DoWork1()
 	{
 		for (int32 i = 1; i < jedges11; i++)
 		{
-			int jid = i-1;
-			int jsource = i-1; // Ensures jsource is always valid within the index range
+			int jid = i - 1;
+			int jsource = i - 1; // Ensures jsource is always valid within the index range
 
 			// Connected to random node 
 			int jtarget = i;
@@ -155,8 +154,8 @@ void AKnowledgeGraph::DoWork2()
 	if (!init)
 	{
 		InitNodes();
-		
-		
+
+
 		CalculateBiasstrengthOflinks();
 	}
 }
@@ -177,7 +176,7 @@ void AKnowledgeGraph::GenerateConnectedGraph(int32 NumClusters, int32 NodesPerCl
 			0
 		);
 		AKnowledgeNode* Node = GetWorld()->SpawnActor<AKnowledgeNode>(AKnowledgeNode::StaticClass(), Location,
-																	  FRotator::ZeroRotator);
+		                                                              FRotator::ZeroRotator);
 		int32 nodeId = i; // Assign node ID, assumed incremented or derived
 		AddNode(nodeId, Node, Location);
 		ClusterCenterIDs.Add(nodeId);
@@ -199,16 +198,16 @@ void AKnowledgeGraph::GenerateConnectedGraph(int32 NumClusters, int32 NodesPerCl
 			if (1)
 			{
 				AddEdge(nodeId,
-						ClusterCenterIDs[i],
-						nodeId
+				        ClusterCenterIDs[i],
+				        nodeId
 				); // Use node IDs for connection
 			}
 			else
 			{
 				AddEdge(nodeId,
-						nodeId,
+				        nodeId,
 
-						ClusterCenterIDs[i]
+				        ClusterCenterIDs[i]
 				); // Use node IDs for connection
 			}
 		}
@@ -233,7 +232,6 @@ void AKnowledgeGraph::ApplyForces()
 	// After loop, the velocity of all notes have been altered a little bit because of the link force already. 
 	for (auto& link : all_links)
 	{
-
 		ll("ApplyForcesssssssssssssssssssss Index: " + FString::FromInt(Index));
 		auto source_node = all_nodes[link.Value->source];
 		auto target_node = all_nodes[link.Value->target];
@@ -266,11 +264,11 @@ void AKnowledgeGraph::ApplyForces()
 		new_v *= l;
 
 
-		ll("NEW V: " + new_v.ToString()+"link.Value->bias: " + FString::SanitizeFloat(link.Value->bias));
+		ll("NEW V: " + new_v.ToString() + "link.Value->bias: " + FString::SanitizeFloat(link.Value->bias));
 		// Record targeted original velocity.
 		FVector target_original_velocity = target_node->velocity;
 
-		
+
 		if (0)
 		{
 			target_node->velocity -= new_v * (1 - link.Value->bias);
@@ -281,13 +279,13 @@ void AKnowledgeGraph::ApplyForces()
 		}
 
 		// Log out the original velocity and the update velocity. 
-		ll("TARGET VELOCITY: " + target_original_velocity.ToString()+ " -> " + target_node->velocity.ToString());
+		ll("TARGET VELOCITY: " + target_original_velocity.ToString() + " -> " + target_node->velocity.ToString());
 
-		
+
 		// Record source original velocity.
 		FVector source_original_velocity = source_node->velocity;
 
-		
+
 		source_node->velocity += new_v * (1 - link.Value->bias);
 
 
@@ -304,10 +302,9 @@ void AKnowledgeGraph::ApplyForces()
 		}
 		else
 		{
-
 		}
 
-		Index++; 
+		Index++;
 	}
 
 	if (1)
@@ -437,7 +434,7 @@ void AKnowledgeGraph::FindManyBodyForce(
 	const FSimpleOctree::FNode& node,
 	const FOctreeNodeContext3 CurrentContext,
 	FString node_id
-	)
+)
 {
 	NodeStrength ns = octree_node_strengths[node_id];
 
@@ -527,7 +524,6 @@ void AKnowledgeGraph::FindManyBodyForce(
 					{
 						// print(FString::FromInt(Sample.MyActor->id));
 						// print((dir * Sample.MyActor->strength * alpha / l * mult).ToString());
-
 					}
 				}
 
@@ -559,13 +555,8 @@ void AKnowledgeGraph::ApplyManyBody(AKnowledgeNode* kn)
 }
 
 
-
-
-
-
-
 void FOctreeSematics::SetElementId(FOctreeSematics::FOctree& thisOctree, const FOctreeElement& Element,
-								   FOctreeElementId3 Id)
+                                   FOctreeElementId3 Id)
 {
 	((FSimpleOctree&)thisOctree).all_elements.Emplace(Element.MyActor->id, Id);
 }
@@ -588,7 +579,7 @@ void AKnowledgeGraph::RemoveElement(int key)
 	all_nodes.Remove(key);
 }
 
-void AKnowledgeGraph::AddOctreeElement(const FOctreeElement& inNewOctreeElement) 
+void AKnowledgeGraph::AddOctreeElement(const FOctreeElement& inNewOctreeElement)
 {
 	ll("AddOctreeElement--------------------------------------");
 	OctreeData->AddElement(inNewOctreeElement);
@@ -618,7 +609,7 @@ void AKnowledgeGraph::InitNodes()
 		{
 			int index = node.Key;
 			// Calculate index-based radius differently based on the number of dimensions
-			float radius = 0;
+			float radius;
 			int nDim = 3;
 			if (nDim > 2)
 			{
@@ -697,19 +688,18 @@ void AKnowledgeGraph::CalculateBiasstrengthOflinks()
 
 	for (auto& link : all_links)
 	{
-
-		ll("all_nodes[link.Value->source]->numberOfConnected: " + FString::FromInt(all_nodes[link.Value->source]->numberOfConnected));
+		ll("all_nodes[link.Value->source]->numberOfConnected: " + FString::FromInt(
+			all_nodes[link.Value->source]->numberOfConnected));
 
 
 		float ttttttttttt = all_nodes[link.Value->source]->numberOfConnected +
 			all_nodes[link.Value->target]->numberOfConnected;
 
 		float bias = all_nodes[link.Value->source]->numberOfConnected /
-		ttttttttttt;
+			ttttttttttt;
 
 
-		
-		ll( "!!!!!!!!!!!!!!!!!!!!!!!bias: " + FString::SanitizeFloat(bias));
+		ll("!!!!!!!!!!!!!!!!!!!!!!!bias: " + FString::SanitizeFloat(bias));
 
 
 		if (biasinitway == 0)
@@ -748,7 +738,7 @@ void AKnowledgeGraph::AddNode(int32 id, AKnowledgeNode* kn, FVector location)
 
 
 		all_nodes.Emplace(id, kn);
-		
+
 		FOctreeElement ote;
 		ote.MyActor = kn;
 		ote.strength = 1.0; // update with strength
@@ -756,8 +746,8 @@ void AKnowledgeGraph::AddNode(int32 id, AKnowledgeNode* kn, FVector location)
 			location,
 			FVector(1.0f, 1.0f, 1.0f),
 			1.0f
-			);
-		
+		);
+
 		AddOctreeElement(ote);
 	}
 }
@@ -782,11 +772,4 @@ void AKnowledgeGraph::AddEdge(int32 id, int32 source, int32 target)
 	e->strength = 1; //temp
 	e->distance = edgeDistance;
 	all_links.Emplace(id, e);
-
-
-
-
 }
-
-
-

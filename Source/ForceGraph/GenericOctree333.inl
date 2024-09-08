@@ -142,8 +142,15 @@ void TOctree3<ElementType, OctreeSemantics>::AddElementToNode(
 		NodeIt.Advance()
 	)
 	{
+
+
+		
 		const FNode& Node = NodeIt.GetCurrentNode();
+
+
 		const FOctreeNodeContext3& Context = NodeIt.GetCurrentContext();
+
+
 		const bool bIsLeaf = Node.IsLeaf();
 
 		bool bAddElementToThisNode = false;
