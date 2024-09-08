@@ -608,6 +608,13 @@ void AKnowledgeGraph::FindManyBodyForce(
 	}
 }
 
+void AKnowledgeGraph::tttttttttttt()
+{
+
+	
+	
+}
+
 void AKnowledgeGraph::ApplyManyBody(AKnowledgeNode* kn)
 {
 	FVector dir;
@@ -887,3 +894,6 @@ void AKnowledgeGraph::AddEdge(int32 id, int32 source, int32 target)
 	e->distance = edgeDistance;
 	all_links.Emplace(id, e);
 }
+
+
+
