@@ -305,12 +305,23 @@ void AKnowledgeGraph::ApplyForces()
 		octree_node_strengths.Empty();
 
 		// Instead of removing the elements we create a new tree again. 	
-		ll("Potential memory leak When creating a new tree while not deleting the old tree. "); 
-		InitOctree(FBox(
-				FVector(-200, -200, -200),
-				FVector(200, 200, 200)
+		ll("Potential memory leak When creating a new tree while not deleting the old tree. ");
+		if (1)
+		{
+			InitOctree(FBox(
+					FVector(-200, -200, -200),
+					FVector(200, 200, 200)
+				)
+			);
+		}
+		else
+		{
+			InitOctree(FBox(
+				FVector(0, 0, 0),
+				FVector(1, 1, 1)
 			)
 		);
+		}
 		
 		
 		for (auto& node : all_nodes)
@@ -775,16 +786,27 @@ void AKnowledgeGraph::AddNode(int32 id, AKnowledgeNode* kn, FVector location)
 		ote.MyActor = kn;
 		ote.strength = 1.0; // update with strength
 
-		float bounds = 1.0f;
+		
+		float bounds = 0.0000000001f;
+
+		if (0)
+		{
+			bounds = 0.0000000001f;
+		}
+		else
+		{
+			bounds = 1.0f;
+			
+		}
 		ote.BoxSphereBounds = FBoxSphereBounds(
 			location,
 			FVector(
-				1.0f,
-				1.0f,
-				1.0f
+				bounds,
+				bounds,
+				bounds
 				),
-			1.0f
-		);
+			bounds
+			);
 		
 		AddOctreeElement(ote);
 	}
