@@ -588,8 +588,9 @@ void AKnowledgeGraph::RemoveElement(int key)
 	all_nodes.Remove(key);
 }
 
-void AKnowledgeGraph::AddOctreeElement(const FOctreeElement& inNewOctreeElement)
+void AKnowledgeGraph::AddOctreeElement(const FOctreeElement& inNewOctreeElement) 
 {
+	ll("AddOctreeElement--------------------------------------");
 	OctreeData->AddElement(inNewOctreeElement);
 }
 
@@ -756,6 +757,7 @@ void AKnowledgeGraph::AddNode(int32 id, AKnowledgeNode* kn, FVector location)
 			FVector(1.0f, 1.0f, 1.0f),
 			1.0f
 			);
+		
 		AddOctreeElement(ote);
 	}
 }

@@ -118,8 +118,24 @@ void TOctree3<ElementType, OctreeSemantics>::AddElementToNode(
 	const FOctreeNodeContext3& InContext
 )
 {
-	const FBoxCenterAndExtent3 ElementBounds(OctreeSemantics::GetBoundingBox(Element));
 
+	auto bounds = OctreeSemantics::GetBoundingBox(Element);
+
+	// static_assert(std::is_same<decltype(bounds), FBoxCenterAndExtent3>::value, "GetBoundingBox(Element) must return FBoxCenterAndExtent3");
+
+	// static_assert(std::is_same<decltype(OctreeSemantics::GetBoundingBox(std::declval<ElementType>())), FBoxCenterAndExtent3>::value,
+	// 			  "GetBoundingBox must return a type of FBoxCenterAndExtent3");
+
+
+	ll("!!!!!!!AddElementToNode:  type of bounds: " + FString(typeid(bounds).name()));
+	
+	// std::cout << "Type of bounds: " << typeid(bounds).name() << std::endl;
+
+
+
+
+	const FBoxCenterAndExtent3 ElementBounds(bounds);
+		
 	for (
 		TConstIterator<TInlineAllocator<1>> NodeIt(InNode, InContext);
 		NodeIt.HasPendingNodes();

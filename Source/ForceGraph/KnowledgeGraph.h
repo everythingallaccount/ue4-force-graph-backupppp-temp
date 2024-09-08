@@ -67,6 +67,7 @@ struct FOctreeSematics
 	*/
 	FORCEINLINE static FBoxSphereBounds GetBoundingBox(const FOctreeElement& Element)
 	{
+		
 		return Element.BoxSphereBounds;
 	}
 
