@@ -305,9 +305,13 @@ void AKnowledgeGraph::ApplyForces()
 		octree_node_strengths.Empty();
 
 		// Instead of removing the elements we create a new tree again. 	
-		ll("Potential memory leak When creating a new tree while not deleting the old tree. ");
 		if (1)
 		{
+			ll("We now calculate a bound suitable. To be implemented.  ");
+			
+			
+
+			
 			InitOctree(FBox(
 					FVector(-200, -200, -200),
 					FVector(200, 200, 200)
@@ -416,12 +420,9 @@ NodeStrength AKnowledgeGraph::AddUpChildren(
 			}
 		}
 
-		// Check in the original source code. There is one Javascript line that this haven't implemented. '
-
-
-
-
+		// Check in the original source code. 
 		// strength *= Math.sqrt(4 / numChildren); // scale accumulated strength according to number of dimensions
+		strength *= sqrt(0.5f); // scale accumulated strength according to number of dimensions
 		octree_node_strengths[node_id].strength = strength; //hash of ID of node for map
 
 
