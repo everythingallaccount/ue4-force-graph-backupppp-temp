@@ -577,7 +577,7 @@ void AKnowledgeGraph::InitOctree(const FBox& inNewBounds)
 	OctreeData = new FSimpleOctree(inNewBounds.GetCenter(), inNewBounds.GetExtent().GetMax());
 }
 
-FSimpleOctree::FSimpleOctree(const FVector& InOrigin, float InExtent) :
+FSimpleOctree::FSimpleOctree(const FVector& InOrigin,const float InExtent) :
 	TOctree3(InOrigin, InExtent)
 {
 }
