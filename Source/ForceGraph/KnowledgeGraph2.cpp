@@ -157,7 +157,7 @@ void AKnowledgeGraph::DoWork2()
 		InitNodes();
 		
 		
-		InitForces();
+		CalculateBiasstrengthOflinks();
 	}
 }
 
@@ -682,7 +682,7 @@ void AKnowledgeGraph::InitNodes()
 }
 
 
-void AKnowledgeGraph::InitForces()
+void AKnowledgeGraph::CalculateBiasstrengthOflinks()
 {
 	//link forces
 	float n = all_nodes.Num();

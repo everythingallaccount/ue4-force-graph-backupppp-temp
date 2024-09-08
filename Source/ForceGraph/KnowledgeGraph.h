@@ -110,7 +110,7 @@ public:
 	void AddOctreeElement(const FOctreeElement& inNewOctreeElement);
 	void InitNodes();
 	void InitOctree(const FBox& inNewBounds);
-	void InitForces();
+	void CalculateBiasstrengthOflinks();
 	void RemoveElement(int key);
 	void ApplyForces();
 	void Accumulate();
