@@ -312,9 +312,29 @@ void AKnowledgeGraph::ApplyForces()
 			// Because the actor location hasn't changed when we compute the link force, so These two lines could actually be put in the start of the function. 
 
 			// If they are remove here，then why we do AddOctreeElement(ote) in AddNode?
-			RemoveElement(node.Key); //need to remove then update with new location when adding
 
-			AddNode(key, kn, kn->GetActorLocation());
+
+			if (0)
+			{
+				RemoveElement(node.Key); //need to remove then update with new location when adding
+				AddNode(key, kn, kn->GetActorLocation());
+			}
+			else
+			{
+				// Instead of removing the elements we create a new tree again. 	
+				ll("Potential memory leak When creating a new tree while not deleting the old tree. "); 
+				
+				InitOctree(FBox(
+						FVector(-200, -200, -200),
+						FVector(200, 200, 200)
+					)
+				);
+				AddNode(key, kn, kn->GetActorLocation());
+
+				
+			}
+
+
 		}
 
 
@@ -557,6 +577,15 @@ void FOctreeSematics::SetElementId(FOctreeSematics::FOctree& thisOctree, const F
 void AKnowledgeGraph::InitOctree(const FBox& inNewBounds)
 {
 	//OctreeData = new FSimpleOctree(FVector(0.0f, 0.0f, 0.0f), 100.0f);
+
+	// Check if OctreeData already exists and delete it to prevent memory leaks
+	if (OctreeData != nullptr) {
+		delete OctreeData;
+		OctreeData = nullptr; // Not necessary but a good practice to avoid dangling pointer
+	}
+
+	ll("InitOctree--------------------------------------");
+	
 	OctreeData = new FSimpleOctree(inNewBounds.GetCenter(), inNewBounds.GetExtent().GetMax());
 }
 
@@ -727,8 +756,7 @@ void AKnowledgeGraph::AddNode(int32 id, AKnowledgeNode* kn, FVector location)
 		kn->id = id;
 
 		kn->strength = nodeStrength;
-
-
+		
 		all_nodes.Emplace(id, kn);
 
 		FOctreeElement ote;
