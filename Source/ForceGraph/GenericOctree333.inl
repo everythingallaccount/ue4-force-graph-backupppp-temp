@@ -182,7 +182,10 @@ void TOctree3<ElementType, OctreeSemantics>::AddElementToNode(
 				// Copy the leaf's elements, remove them from the leaf, and turn it into a node.
 				ElementArrayType ChildElements;
 				Exchange(ChildElements, Node.Elements);
-				SetOctreeMemoryUsage(this, TotalSizeBytes - ChildElements.Num() * sizeof(ElementType));
+				SetOctreeMemoryUsage(
+					this,
+					TotalSizeBytes - ChildElements.Num() * sizeof(ElementType)
+				);
 				Node.InclusiveNumElements = 0;
 
 				// Allow elements to be added to children of this node.

@@ -351,7 +351,7 @@ void AKnowledgeGraph::ApplyForces()
 		}
 
 
-		// Most of the questions come from here。 
+		// Most of the questions come from here
 		Accumulate();
 
 
