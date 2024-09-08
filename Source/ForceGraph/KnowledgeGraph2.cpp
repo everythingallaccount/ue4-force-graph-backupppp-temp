@@ -150,14 +150,6 @@ void AKnowledgeGraph::DoWork2()
 		break;
 	}
 
-
-	if (!init)
-	{
-		InitNodes();
-
-
-		CalculateBiasstrengthOflinks();
-	}
 }
 
 void AKnowledgeGraph::GenerateConnectedGraph(int32 NumClusters, int32 NodesPerCluster)

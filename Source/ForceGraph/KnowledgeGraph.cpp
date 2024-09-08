@@ -40,6 +40,17 @@ void AKnowledgeGraph::BeginPlay()
 
 
 	DoWork2();
+
+
+	
+
+	if (!init)
+	{
+		InitNodes();
+
+
+		CalculateBiasstrengthOflinks();
+	}
 }
 
 
