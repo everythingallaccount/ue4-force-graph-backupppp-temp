@@ -39,6 +39,8 @@ struct OctreeNode
 
 	FVector CenterOfMass;
 	int TotalDataPoints = 0;
+	double Strength;
+	double TotalWeight;
 
 
 	// default to be zero vector.  
@@ -58,6 +60,7 @@ struct OctreeNode
 
 	void Subdivide();
 	void CalculateCenterOfMass();
+	void AccumulateStrengthAndComputeCenterOfMass();
 	void Cover(float X0, float Y0, float Z0);
 
 	void AddAll1(TMap<int32, AKnowledgeNode*> Map1);

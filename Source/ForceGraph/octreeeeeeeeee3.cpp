@@ -121,6 +121,66 @@ void OctreeNode::CalculateCenterOfMass() {
     }
 }
 
+
+void OctreeNode::AccumulateStrengthAndComputeCenterOfMass() {
+    FVector aggregatePosition = FVector(0);
+    double aggregateStrength = 0.0;
+    int totalWeight = 0;
+    
+    if (IsLeaf()) {
+        if (Data) {
+            FVector position = Data->Node->GetActorLocation();
+            double strength = Data->Node->strength;
+
+
+            Strength = strength;
+
+
+            TotalWeight = FMath::Abs(strength);
+
+
+            // In javascript implementations,
+            // we extract the value of that node and assign directly xyz property  
+            CenterOfMass = position; // Assign directly for leaf nodes
+
+            
+        }
+    } else {
+        // Recursive accumulation from children nodes
+        for (OctreeNode* child : Children) {
+            if (child != nullptr) {
+
+                child->AccumulateStrengthAndComputeCenterOfMass();
+
+                aggregatePosition += child->CenterOfMass * child->TotalWeight;
+                aggregateStrength += child->Strength;
+                totalWeight += child->TotalWeight;
+            }
+        }
+
+        // Calculate the center of mass based on total weight
+        if (totalWeight > 0) {
+            CenterOfMass = aggregatePosition / totalWeight;
+            CenterOfMass.X = CenterOfMass.X; // Explicit for clarity
+
+            if (nDim > 1) {
+                CenterOfMass.Y = aggregatePosition.Y / totalWeight;
+            }
+            if (nDim > 2) {
+                CenterOfMass.Z = aggregatePosition.Z / totalWeight;
+            }
+
+            Strength = aggregateStrength; // Optionally, adjust strength scaling here
+            TotalWeight = totalWeight;
+            
+            // Scale the strength if it might need to be normalized by the number of child nodes
+            if (Children.Num() > 0) {
+                Strength *= sqrt(4.0 / Children.Num());
+            }
+        }
+    }
+}
+
 void OctreeNode::Cover(float x, float y, float z)
 {
     // intended to call on the lower bound and the highest bound of all the data combined. 
