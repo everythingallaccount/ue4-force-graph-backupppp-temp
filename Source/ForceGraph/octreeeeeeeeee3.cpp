@@ -135,6 +135,8 @@ bool SampleCallback(OctreeNode* node) {
 
     return false;  // Continue to visit children
 }
+// Assuming `root` is the root of your Octree and it's properly initialized
+// TraverseBFS(root, SampleCallback);
 
 
 
