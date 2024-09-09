@@ -3,8 +3,14 @@
 #include <queue>
 
 OctreeNode::OctreeNode(FVector center, FVector extent)
-    : Center(center), Extent(extent), TotalDataPoints(0), CenterOfMass(center), Data(nullptr) {
+    : Center(center),
+Extent(extent),
+TotalDataPoints(0),
+CenterOfMass(center),
+Data(nullptr) {
+    
     Children.SetNum(8, false);
+
 }
 
 OctreeNode::~OctreeNode() {

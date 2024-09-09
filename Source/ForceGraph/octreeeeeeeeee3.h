@@ -3,14 +3,22 @@
 #include <functional>
 
 #include "CoreMinimal.h"
+#include "KnowledgeNode.h"
 // #include "PointData.h" // Make sure this include points to your actual PointData structure file location
 
 struct PointData {
 	FVector Position;
 	FVector Velocity;
+	AKnowledgeNode* Node;
 
-	PointData(FVector position = FVector(), FVector velocity = FVector())
-		: Position(position), Velocity(velocity) {}
+	PointData(
+		FVector position = FVector(),
+		FVector velocity = FVector()
+		)
+		: Position(position), Velocity(velocity)
+	{
+		
+	}
 
 	// Optionally add methods that manipulate the point data if needed
 };

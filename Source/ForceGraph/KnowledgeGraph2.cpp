@@ -213,12 +213,8 @@ void AKnowledgeGraph::GenerateConnectedGraph(int32 NumClusters, int32 NodesPerCl
 }
 
 
-void AKnowledgeGraph::ApplyForces()
+void AKnowledgeGraph::CalculatelinkAndatevelocity()
 {
-	// In here velocity of all notes are zeroed
-	// In the following for loop, In the first few loop, the velocity is 0. 
-
-
 	int32 Index = 0;
 	// link forces
 	// After loop, the velocity of all notes have been altered a little bit because of the link force already. 
@@ -298,6 +294,15 @@ void AKnowledgeGraph::ApplyForces()
 
 		Index++;
 	}
+}
+
+void AKnowledgeGraph::ApplyForces()
+{
+	// In here velocity of all notes are zeroed
+	// In the following for loop, In the first few loop, the velocity is 0. 
+
+
+	CalculatelinkAndatevelocity();
 
 	if (1)
 	{
