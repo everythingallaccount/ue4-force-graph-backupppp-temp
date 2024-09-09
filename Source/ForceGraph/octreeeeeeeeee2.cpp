@@ -2,7 +2,11 @@
 
 
 
-OctreeNode::OctreeNode(FVector center, FVector extent) : Center(center), Extent(extent), CenterOfMass(center), TotalDataPoints(0) {
+OctreeNode::OctreeNode(FVector center, FVector extent) :
+Center(center),
+Extent(extent),
+CenterOfMass(center),
+TotalDataPoints(0) {
 	Children.SetNum(8, false);
 }
 
@@ -53,8 +57,11 @@ void OctreeNode::CalculateCenterOfMass() {
 			TotalDataPoints = 0;
 		}
 	} else {
+		
 		FVector totalMassLocation = FVector(0);
+		
 		int totalPoints = 0;
+
 		for (OctreeNode* child : Children) {
 			if (child != nullptr) {
 				child->CalculateCenterOfMass();

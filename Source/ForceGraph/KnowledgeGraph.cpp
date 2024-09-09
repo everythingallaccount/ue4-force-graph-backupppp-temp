@@ -112,7 +112,7 @@ void AKnowledgeGraph::Tick(float DeltaTime)
 			);
 
 
-			kn->velocity *= 0; //reset velocities
+			// kn->velocity *= 0; //reset velocities
 
 			//            print("FINAL POSITION!");
 			//            print(FString::FromInt(node.Key));
