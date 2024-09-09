@@ -159,7 +159,7 @@ void OctreeNode::AccumulateStrengthAndComputeCenterOfMass()
 			FVector position = Data->Node->GetActorLocation();
 			double strength = Data->Node->strength;
 
-
+			ll("strength555555555: " + FString::SanitizeFloat(strength));
 			Strength = strength;
 			StrengthSet=true;
 
@@ -216,8 +216,9 @@ void OctreeNode::AccumulateStrengthAndComputeCenterOfMass()
 		// Calculate the center of mass based on total weight
 		if (totalWeight > 0)
 		{
-			Strength *= sqrt(4.0 / 8);
-
+			ll("aggregateStrength2222: " + FString::SanitizeFloat(aggregateStrength));
+			aggregateStrength *= sqrt(4.0 / 8);
+			ll("aggregateStrength: " + FString::SanitizeFloat(aggregateStrength));
 			CenterOfMass = aggregatePosition / totalWeight;
 
 			Strength = aggregateStrength; // Optionally, adjust strength scaling here

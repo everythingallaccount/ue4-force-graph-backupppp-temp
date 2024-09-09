@@ -36,7 +36,7 @@ public:
     UClass* MyClass;
     TArray<ConnectedNode*> connectedNodes;
     float spawnTime = 0.0;
-    float strength = -30;
+    float strength = -60;
     FVector velocity;
     int id;
     

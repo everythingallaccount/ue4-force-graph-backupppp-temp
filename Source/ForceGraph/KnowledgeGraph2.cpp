@@ -372,8 +372,9 @@ void AKnowledgeGraph::Calculatechargeforceandupdatevelocity()
 			);
 
 			OctreeData2->AddAll1(all_nodes);
-			
-			
+			OctreeData2->AccumulateStrengthAndComputeCenterOfMass();
+			ll("!!!OctreeData2->CenterOfMass: " + OctreeData2->CenterOfMass.ToString());
+			ll("!!!OctreeData2->strength: " + FString::SanitizeFloat(OctreeData2->Strength));
 		}
 
 

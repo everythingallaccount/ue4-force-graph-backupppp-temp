@@ -149,7 +149,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
 	float edgeDistance = 30;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
-	float nodeStrength = -30;
+	float nodeStrength = -60;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
 	float distancemin = 1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
