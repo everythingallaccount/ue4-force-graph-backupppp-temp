@@ -162,7 +162,7 @@ void OctreeNode::AccumulateStrengthAndComputeCenterOfMass()
 
 			ll("strength555555555: " + FString::SanitizeFloat(strength));
 			Strength = strength;
-			StrengthSet=true;
+			StrengthSet = true;
 
 			// TotalWeight = FMath::Abs(strength);
 
@@ -188,23 +188,21 @@ void OctreeNode::AccumulateStrengthAndComputeCenterOfMass()
 			{
 				child->AccumulateStrengthAndComputeCenterOfMass();
 
-				
+
 				if (
-					
+
 					child->StrengthSet
 
-					)
+				)
 				{
+					float c = FMath::Abs(child->Strength);
 
-					float c= FMath::Abs(child->Strength);
-					
 					aggregateStrength += child->Strength;
 
 
 					totalWeight += c;
 
-					aggregatePosition += c * child->CenterOfMass ;
-
+					aggregatePosition += c * child->CenterOfMass;
 				}
 			}
 			else
@@ -224,7 +222,6 @@ void OctreeNode::AccumulateStrengthAndComputeCenterOfMass()
 
 			Strength = aggregateStrength; // Optionally, adjust strength scaling here
 			// TotalWeight = totalWeight;
-
 		}
 	}
 }
@@ -302,7 +299,7 @@ void TraverseBFS(OctreeNode* root, OctreeCallback callback)
 	}
 }
 
-bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn)
+bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 {
 	if (0)
 	{
@@ -324,129 +321,162 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn)
 	}
 	else
 	{
-
-	
-	
-	// FVector center = CurrentBounds.Center;
-	FVector width = node->Extent;
+		// FVector center = CurrentBounds.Center;
+		FVector width = node->Extent;
 
 
-	
-	FVector dir = node->CenterOfMass - kn->GetActorLocation();
-		
+		FVector dir = node->CenterOfMass - kn->GetActorLocation();
 
-	// Remember that direction is the sum of all the Actor locations of the elements in that note. 
-	float l = dir.Size() * dir.Size();
 
-	float theta2 = 0.81;
-	float distancemax=1000000000;
-	long double distancemin=1;
-	// if size of current box is less than distance between nodes
-	// This is used to stop recurring down the tree.
-	if (width.X * width.X / theta2 < l)
-	{
-		//        print("GOING IN HERE");
-		if (l < distancemax)
+		// Remember that direction is the sum of all the Actor locations of the elements in that note. 
+		float l = dir.Size() * dir.Size();
+
+		float theta2 = 0.81;
+		float distancemax = 1000000000;
+		long double distancemin = 1;
+		// if size of current box is less than distance between nodes
+		// This is used to stop recurring down the tree.
+		if (width.X * width.X / theta2 < l)
 		{
-			if (dir.X==0)
+			//        print("GOING IN HERE");
+			if (l < distancemax)
 			{
-				// Assign a random value   // return (random() - 0.5) * 1e-6;
-				dir.X = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
-				// l += x * x;
+				if (dir.X == 0)
+				{
+					// Assign a random value   // return (random() - 0.5) * 1e-6;
+					dir.X = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
+					// l += x * x;
+					l += dir.X * dir.X;
+				}
+				if (dir.Y == 0)
+				{
+					// Assign a random value   // return (random() - 0.5) * 1e-6;
+					dir.Y = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
+					// l += x * x;
+					l += dir.Y * dir.Y;
+				}
+				if (dir.Z == 0)
+				{
+					// Assign a random value   // return (random() - 0.5) * 1e-6;
+					dir.Z = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
+					// l += x * x;
+					l += dir.Z * dir.Z;
+				}
+
+
+				if (l < distancemin)
+					l = sqrt(distancemin * l);
+
+
+				//print(FString::SanitizeFloat(ns.strength));
+
+				// float mult = pow(ns.strength / nodeStrength, 1.0);
+				kn->velocity += dir
+					*
+					node->Strength
+					*
+					std::ctype_base::alpha / l;
+			}
+			return true;
+		}
+
+		// if not leaf, get all children
+
+		if (!node->IsLeaf()
+			||
+			l >= distancemax)
+		{
+			return false;
+		} 
+
+
+
+
+
+		// For the function to reach here, it has to be a leaf node
+
+
+		
+		if (
+			// The data is not same as the current node. 
+			node->Data->Node != kn
+			||
+			node->Data->Next != nullptr
+			
+		)
+		{
+			//print("IM LEAF");
+			if (dir.X)
+			{
+				// (random() - 0.5) * 1e-6;
+				dir.X= (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
 				l += dir.X * dir.X;
-				
 			}
-			if (dir.Y==0)
+			if (dir.Y)
 			{
-				// Assign a random value   // return (random() - 0.5) * 1e-6;
+				// (random() - 0.5) * 1e-6;
 				dir.Y = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
-				// l += x * x;
 				l += dir.Y * dir.Y;
-				
 			}
-			if (dir.Z==0)
+			if (dir.Z)
 			{
-				// Assign a random value   // return (random() - 0.5) * 1e-6;
+				// (random() - 0.5) * 1e-6;
 				dir.Z = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
-				// l += x * x;
 				l += dir.Z * dir.Z;
 			}
-			
-
-
-			
+			// if (l < distanceMin2) l = Math.sqrt(distanceMin2 * l);
 			if (l < distancemin)
 				l = sqrt(distancemin * l);
 
 
-			
-			//print(FString::SanitizeFloat(ns.strength));
+			// do if (
+			// 			treeNode.data !== node
+			// 		) {
+			// 	w = strengths[treeNode.data.index] * alpha / l;
+			// 	node.vx += x * w;
+			// 	if (nDim > 1) {
+			// 		node.vy += y * w;
+			// 	}
+			// 	if (nDim > 2) {
+			// 		node.vz += z * w;
+			// 	}
+			// 		} while (treeNode = treeNode.next);
+			//
 
-			// float mult = pow(ns.strength / nodeStrength, 1.0);
-			kn->velocity += dir
-			*
-				node->Strength
-			*
-			std::ctype_base::alpha / l;
+			
+
+
+
+
+			
+		}
+		PointData* currentNode = node->Data;
+		while (1)
+		{
+			if (
+				currentNode->Node != kn
+			)
+			{
+				float w=currentNode->Node->strength * alpha / l;
+
+					
+				kn->velocity += dir * w;
+			}
+			else
+			{
+
+					
+			}
+			if (currentNode->Next == nullptr)
+			{
+				break;
+			}
+			currentNode = currentNode->Next;
+
+				
 		}
 		return true;
-	}
-
-	// if not leaf, get all children
-
-	// People do we have to check on L bigger than distance max?
-	// FOREACH_OCTREE_CHILD_NODE3 Will not run if the note is LeaF note. , even if L is bigger than distance max. 
-	if (!node->IsLeaf() || l >= distancemax)
-	{
-		//recurse down this dude
-		//        print("IM NO LEAF");
-		//print("NOT A LEAF");
-		int count = 0;
-		FOREACH_OCTREE_CHILD_NODE3(ChildRef)
-		{
-			if (node.HasChild(ChildRef))
-			{
-				FindManyBodyForce(
-					kn,
-					*node.GetChild(ChildRef),
-					CurrentContext.GetChildContext(ChildRef),
-					node_id + FString::FromInt(count)
-				);
-				count++;
-			}
-		}
-	} //if leaf and close, apply elements directly
-	else if (node.IsLeaf())
-	{
-		//print("IM LEAF");
-		if (l < distancemin)
-		{
-			l = sqrt(distancemin * l);
-		}
-		for (FSimpleOctree::ElementConstIt ElementIt(node.GetElementIt()); ElementIt; ++ElementIt)
-		{
-			const FOctreeElement& Sample = *ElementIt;
-			if (Sample.MyActor->id != kn->id)
-			{
-				dir = Sample.MyActor->GetActorLocation() - kn->GetActorLocation();
-				l = dir.Size() * dir.Size();
-				float mult = pow(Sample.MyActor->numberOfConnected, 3.0);
-
-
-				if (0)
-				{
-					if (kn->id == 7 && alpha > 0.2)
-					{
-						// print(FString::FromInt(Sample.MyActor->id));
-						// print((dir * Sample.MyActor->strength * alpha / l * mult).ToString());
-					}
-				}
-
-				kn->velocity += dir * Sample.MyActor->strength * alpha / l * mult;
-			}
-		}
-	}
-
+		
 	}
 }
 
