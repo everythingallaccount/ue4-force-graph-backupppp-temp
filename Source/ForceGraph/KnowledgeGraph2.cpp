@@ -375,6 +375,11 @@ void AKnowledgeGraph::Calculatechargeforceandupdatevelocity()
 			OctreeData2->AccumulateStrengthAndComputeCenterOfMass();
 			ll("!!!OctreeData2->CenterOfMass: " + OctreeData2->CenterOfMass.ToString());
 			ll("!!!OctreeData2->strength: " + FString::SanitizeFloat(OctreeData2->Strength));
+
+			for (auto& node : all_nodes)
+			{
+				TraverseBFS(OctreeData2,SampleCallback, alpha, node.Value);
+			}
 		}
 
 
