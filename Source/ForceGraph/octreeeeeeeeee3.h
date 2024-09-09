@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include "CoreMinimal.h"
 // #include "PointData.h" // Make sure this include points to your actual PointData structure file location
 
@@ -32,3 +34,12 @@ struct OctreeNode {
 };
 
 void AddDataPoint(OctreeNode* node, FVector newPoint, FVector velocity);
+
+
+// Define the Callback Type
+using OctreeCallback = std::function<bool(OctreeNode*)>;
+
+// Declare the BFS traversal function
+void TraverseBFS(OctreeNode* root, OctreeCallback callback);
+
+bool SampleCallback(OctreeNode* node);

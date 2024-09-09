@@ -1,5 +1,7 @@
 #include "octreeeeeeeeee3.h"
 
+#include <queue>
+
 OctreeNode::OctreeNode(FVector center, FVector extent)
     : Center(center), Extent(extent), TotalDataPoints(0), CenterOfMass(center), Data(nullptr) {
     Children.SetNum(8, false);
@@ -82,4 +84,48 @@ void OctreeNode::CalculateCenterOfMass() {
             TotalDataPoints = count;
         }
     }
+}
+
+
+void TraverseBFS(OctreeNode* root, OctreeCallback callback) {
+    if (!root) return; // If the root is null, return immediately
+
+    std::queue<OctreeNode*> nodeQueue;
+    nodeQueue.push(root);
+
+    while (!nodeQueue.empty()) {
+        OctreeNode* currentNode = nodeQueue.front();
+        nodeQueue.pop();
+
+        // Execute the callback on the current node
+        bool skipChildren = callback(currentNode);
+
+        // If callback returns true, do not enqueue children
+        if (skipChildren) {
+            continue;
+        }
+
+        // Otherwise, enqueue all non-null children
+        for (OctreeNode* child : currentNode->Children) {
+            if (child) {
+                nodeQueue.push(child);
+            }
+        }
+    }
+}
+
+bool SampleCallback(OctreeNode* node) {
+    if (!node || !node->Data) return false;  // If no data, continue traversal
+
+    // Set a threshold value for some condition
+    const float threshold = 10.0f;
+
+    // Example condition: stop traversal if any point's x-coordinate is greater than threshold
+    if (node->Data->Position.X > threshold) {
+        // Print/log some information (in Unreal it could be UE_LOG or GLog)
+        UE_LOG(LogTemp, Warning, TEXT("Node with Data exceeding threshold found at X: %f"), node->Data->Position.X);
+        return true;  // Stop visiting further children of this node
+    }
+
+    return false;  // Continue to visit children
 }
