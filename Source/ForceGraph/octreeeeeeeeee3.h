@@ -12,6 +12,8 @@ struct PointData
 	// FVector Velocity;
 	AKnowledgeNode* Node;
 
+	PointData* Next = nullptr;
+
 	PointData(
 		// FVector position = FVector(),
 		// FVector velocity = FVector()
