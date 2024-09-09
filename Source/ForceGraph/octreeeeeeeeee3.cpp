@@ -9,6 +9,7 @@ TotalDataPoints(0),
 CenterOfMass(center),
 Data(nullptr) {
     Children.SetNum(8, false);
+    isCenterSet=true;
 }
 
 OctreeNode::OctreeNode()
@@ -100,11 +101,46 @@ void OctreeNode::CalculateCenterOfMass() {
     }
 }
 
-void OctreeNode::Cover(float X0, float Y0, float Z0)
+void OctreeNode::Cover(float x, float y, float z)
 {
-    
-}
+    // intended to call on the lower bound and the highest bound of all the data combined. 
 
+    
+    FVector point(x, y, z);
+    if (!isCenterSet) {
+        // Set the initial bounds as the data point acting as the lowest bound.
+        FVector minBound = FVector(FMath::FloorToFloat(x), FMath::FloorToFloat(y), FMath::FloorToFloat(z));
+        
+        // Assuming the initial extent should be (1,1,1)
+        FVector initialExtent = FVector(1, 1, 1);
+        
+        // The center will be the minBound plus half of the initial extent
+        Center = minBound + initialExtent * 0.5f;
+        Extent = initialExtent * 0.5f;
+        
+        isCenterSet = true;
+        return;
+    }
+
+    while (!ContainsPoint(point)) {
+
+
+        FVector temp= Center-Extent;
+
+        
+        Extent *= 2; // Double the size of the octree
+        // Determine the direction to adjust the center based on where the point lies
+
+        Center=temp+Extent;
+
+        // FVector direction = point - Center;
+        // Center += FVector(
+        //     (direction.X < 0) ? -Extent.X / 2 : Extent.X / 2,
+        //     (direction.Y < 0) ? -Extent.Y / 2 : Extent.Y / 2,
+        //     (direction.Z < 0) ? -Extent.Z / 2 : Extent.Z / 2
+        // );
+    }  
+}
 
 void TraverseBFS(OctreeNode* root, OctreeCallback callback) {
     if (!root) return; // If the root is null, return immediately

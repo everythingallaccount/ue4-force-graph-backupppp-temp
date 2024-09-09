@@ -24,10 +24,13 @@ struct PointData {
 };
 
 struct OctreeNode {
+
+	bool isCenterSet=false;
 	FVector Center;
 	FVector Extent;
 	TArray<OctreeNode*> Children;
-	PointData* Data = nullptr; 
+	PointData* Data = nullptr;
+	
 	FVector CenterOfMass;
 	int TotalDataPoints = 0;
 
@@ -51,6 +54,7 @@ struct OctreeNode {
 	void Subdivide();
 	void CalculateCenterOfMass();
 	void Cover(float X0, float Y0, float Z0);
+	
 	void AddAll1(TMap<int32, AKnowledgeNode*> Map1);
 };
 
