@@ -13,6 +13,9 @@ Data(nullptr) {
 
 }
 
+
+
+
 OctreeNode::~OctreeNode() {
     for (auto* child : Children) {
         delete child;
@@ -140,45 +143,45 @@ bool SampleCallback(OctreeNode* node) {
 
 
 
-
-void OctreeNode::AddAll(const TArray<DataPoint>& Data) {
-    int32 N = Data.Num();
-    TArray<float> Xz, Yz, Zz;
-    Xz.Reserve(N);
-    Yz.Reserve(N);
-    Zz.Reserve(N);
-
-    float X0 = std::numeric_limits<float>::infinity();
-    float Y0 = std::numeric_limits<float>::infinity();
-    float Z0 = std::numeric_limits<float>::infinity();
-    float X1 = -std::numeric_limits<float>::infinity();
-    float Y1 = -std::numeric_limits<float>::infinity();
-    float Z1 = -std::numeric_limits<float>::infinity();
-
-    // Compute the points and their extent
-    for (int i = 0; i < N; ++i) {
-        const DataPoint& D = Data[i];
-        float X = D.x;
-        float Y = D.y;
-        float Z = D.z;
-        Xz.Add(X);
-        Yz.Add(Y);
-        Zz.Add(Z);
-
-        X0 = FMath::Min(X0, X);
-        Y0 = FMath::Min(Y0, Y);
-        Z0 = FMath::Min(Z0, Z);
-        X1 = FMath::Max(X1, X);
-        Y1 = FMath::Max(Y1, Y);
-        Z1 = FMath::Max(Z1, Z);
-    }
-
-    // Cover the extent
-    Cover(X0, Y0, Z0);
-    Cover(X1, Y1, Z1);
-
-    // Add the new points
-    for (int i = 0; i < N; ++i) {
-        Add(Xz[i], Yz[i], Zz[i], Data[i]);
-    }
-}
+//
+// void OctreeNode::AddAll(const TArray<DataPoint>& Data) {
+//     int32 N = Data.Num();
+//     TArray<float> Xz, Yz, Zz;
+//     Xz.Reserve(N);
+//     Yz.Reserve(N);
+//     Zz.Reserve(N);
+//
+//     float X0 = std::numeric_limits<float>::infinity();
+//     float Y0 = std::numeric_limits<float>::infinity();
+//     float Z0 = std::numeric_limits<float>::infinity();
+//     float X1 = -std::numeric_limits<float>::infinity();
+//     float Y1 = -std::numeric_limits<float>::infinity();
+//     float Z1 = -std::numeric_limits<float>::infinity();
+//
+//     // Compute the points and their extent
+//     for (int i = 0; i < N; ++i) {
+//         const DataPoint& D = Data[i];
+//         float X = D.x;
+//         float Y = D.y;
+//         float Z = D.z;
+//         Xz.Add(X);
+//         Yz.Add(Y);
+//         Zz.Add(Z);
+//
+//         X0 = FMath::Min(X0, X);
+//         Y0 = FMath::Min(Y0, Y);
+//         Z0 = FMath::Min(Z0, Z);
+//         X1 = FMath::Max(X1, X);
+//         Y1 = FMath::Max(Y1, Y);
+//         Z1 = FMath::Max(Z1, Z);
+//     }
+//
+//     // Cover the extent
+//     Cover(X0, Y0, Z0);
+//     Cover(X1, Y1, Z1);
+//
+//     // Add the new points
+//     for (int i = 0; i < N; ++i) {
+//         Add(Xz[i], Yz[i], Zz[i], Data[i]);
+//     }
+// }

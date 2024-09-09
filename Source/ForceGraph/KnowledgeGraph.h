@@ -8,6 +8,7 @@
 #include "GameFramework/Actor.h"
 #include "Engine/World.h"
 #include "CoreMinimal.h"
+#include "octreeeeeeeeee3.h"
 
 #include "KnowledgeGraph.generated.h"
 
@@ -179,7 +180,7 @@ private:
 	bool init = false;
 
 	FSimpleOctree* OctreeData;
-	
+	OctreeNode* OctreeData2;
 
 
 	// Called every frame

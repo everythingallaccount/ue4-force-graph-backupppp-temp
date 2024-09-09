@@ -306,64 +306,75 @@ void AKnowledgeGraph::ApplyForces()
 
 	if (1)
 	{
-		//charge forces
-		octree_node_strengths.Empty();
-
-		// Instead of removing the elements we create a new tree again. 	
-		if (1)
+		if (0)
 		{
-			ll("We now calculate a bound suitable. To be implemented.  ");
-			
-			
+			//charge forces
+			octree_node_strengths.Empty();
 
-			
-			InitOctree(FBox(
-					FVector(-200, -200, -200),
-					FVector(200, 200, 200)
-				)
-			);
-		}
-		else
-		{
-			InitOctree(FBox(
-				FVector(0, 0, 0),
-				FVector(1, 1, 1)
-			)
-		);
-		}
-		
-		
-		for (auto& node : all_nodes)
-		{
-			int key = node.Key;
-			auto kn = node.Value;
-
-
-			// Because the actor location hasn't changed when we compute the link force, so These two lines could actually be put in the start of the function. 
-
-			// If they are remove here，then why we do AddOctreeElement(ote) in AddNode?
-
-
-			if (0)
+			// Instead of removing the elements we create a new tree again. 	
+			if (1)
 			{
-				RemoveElement(node.Key); //need to remove then update with new location when adding
-				AddNode(key, kn, kn->GetActorLocation());
+				ll("We now calculate a bound suitable. To be implemented.  ");
+			
+			
+
+			
+				InitOctree(FBox(
+						FVector(-200, -200, -200),
+						FVector(200, 200, 200)
+					)
+				);
 			}
 			else
 			{
-				
-				AddNode(key, kn, kn->GetActorLocation());
-				
+				InitOctree(FBox(
+						FVector(0, 0, 0),
+						FVector(1, 1, 1)
+					)
+				);
 			}
+		
+		
+			for (auto& node : all_nodes)
+			{
+				int key = node.Key;
+				auto kn = node.Value;
 
+
+				// Because the actor location hasn't changed when we compute the link force, so These two lines could actually be put in the start of the function. 
+
+				// If they are remove here，then why we do AddOctreeElement(ote) in AddNode?
+
+
+				if (0)
+				{
+					RemoveElement(node.Key); //need to remove then update with new location when adding
+					AddNode(key, kn, kn->GetActorLocation());
+				}
+				else
+				{
+				
+					AddNode(key, kn, kn->GetActorLocation());
+				
+				}
+
+
+			}
+		}
+		else
+		{
+			//
+			OctreeData2 = new OctreeNode(
+				// FVector(0, 0, 0),
+				// 100.0f
+
+				);
 
 		}
 
 
-		// Most of the questions come from here
 		Accumulate();
-
-
+		
 		for (auto& node : all_nodes)
 		{
 			ApplyManyBody(node.Value);

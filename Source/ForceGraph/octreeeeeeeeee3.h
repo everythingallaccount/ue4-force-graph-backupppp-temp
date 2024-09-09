@@ -31,7 +31,14 @@ struct OctreeNode {
 	FVector CenterOfMass;
 	int TotalDataPoints = 0;
 
-	OctreeNode(FVector center, FVector extent);
+
+
+	// default to be zero vector.  
+	OctreeNode(FVector center=FVector(0,0,0),
+		FVector extent=FVector(0,0,0)
+		);
+
+
 	~OctreeNode();
 
 	bool IsLeaf() const;
