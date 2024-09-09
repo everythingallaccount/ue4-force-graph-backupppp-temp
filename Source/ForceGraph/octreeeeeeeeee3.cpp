@@ -42,7 +42,13 @@ bool OctreeNode::ContainsPoint(const FVector point) const {
 }
 
 void OctreeNode::Subdivide() {
-    if (!IsLeaf() || Data == nullptr) return;
+    if (
+        !IsLeaf()   // 
+        ||
+        Data == nullptr // 
+
+        // These two conditions shall never matter, because dysfunctions before calling shall already have the checking. 
+        ) return;
 
     FVector NewExtent = Extent * 0.5;
     PointData* OldData = Data;
@@ -77,7 +83,9 @@ void AddDataPoint(OctreeNode* node, AKnowledgeNode* kn) {
             }
         }
     } else {
-        if (node->Data != nullptr) {
+        if (
+            node->Data != nullptr
+            ) {
             // If the node already has data, subdivide and add the new data point
             node->Subdivide();
             AddDataPoint(node, kn);
