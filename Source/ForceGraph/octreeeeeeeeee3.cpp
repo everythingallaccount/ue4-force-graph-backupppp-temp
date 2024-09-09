@@ -62,8 +62,10 @@ void OctreeNode::Subdivide() {
 }
 
 void AddDataPoint(OctreeNode* node, FVector newPoint, FVector velocity) {
-    if (!node->IsLeaf()) {
 
+
+
+    if (!node->IsLeaf()) {
         // Recursively found the leaf node to add the data point
         for (auto* child : node->Children) {
             if (child->ContainsPoint(newPoint)) {
@@ -77,6 +79,7 @@ void AddDataPoint(OctreeNode* node, FVector newPoint, FVector velocity) {
             node->Subdivide();
             AddDataPoint(node, newPoint, velocity);
         } else {
+
             // No data is associated with the current node
             node->Data = new PointData(newPoint, velocity);
             node->TotalDataPoints = 1; // Now properly accounting for the node having new data
@@ -240,7 +243,11 @@ void OctreeNode::AddAll1(TMap<int32, AKnowledgeNode*> Map){
 
     ll("!!!!New center and you extend will be set to: " + Center.ToString() + " " + Extent.ToString());
     // Add the new points
-    // for (int i = 0; i < N; ++i) {
-    //     Add(Xz[i], Yz[i], Zz[i], Data[i]);
-    // }
+    for (int i = 0; i < N; ++i) {
+        FVector D = Map[i]->GetActorLocation();
+        AddDataPoint(this,
+            D,
+            FVector(0,0,0)
+            );
+    }
 }

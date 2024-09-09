@@ -6,7 +6,8 @@
 #include "KnowledgeNode.h"
 // #include "PointData.h" // Make sure this include points to your actual PointData structure file location
 
-struct PointData {
+struct PointData
+{
 	FVector Position;
 	FVector Velocity;
 	AKnowledgeNode* Node;
@@ -14,35 +15,33 @@ struct PointData {
 	PointData(
 		FVector position = FVector(),
 		FVector velocity = FVector()
-		)
+	)
 		: Position(position), Velocity(velocity)
 	{
-		
 	}
 
 	// Optionally add methods that manipulate the point data if needed
 };
 
-struct OctreeNode {
-
-	bool isCenterSet=false;
+struct OctreeNode
+{
+	bool isCenterSet = false;
 	FVector Center;
 	FVector Extent;
 	TArray<OctreeNode*> Children;
 	PointData* Data = nullptr;
-	
+
 	FVector CenterOfMass;
 	int TotalDataPoints = 0;
 
 
-
 	// default to be zero vector.  
 	OctreeNode(FVector center
-		// =FVector(0,0,0)
-		,
-		FVector extent
-		// =FVector(0,0,0)
-		);
+	           // =FVector(0,0,0)
+	           ,
+	           FVector extent
+	           // =FVector(0,0,0)
+	);
 
 	OctreeNode();
 
@@ -50,11 +49,11 @@ struct OctreeNode {
 
 	bool IsLeaf() const;
 	bool ContainsPoint(const FVector point) const;
-    
+
 	void Subdivide();
 	void CalculateCenterOfMass();
 	void Cover(float X0, float Y0, float Z0);
-	
+
 	void AddAll1(TMap<int32, AKnowledgeNode*> Map1);
 };
 
