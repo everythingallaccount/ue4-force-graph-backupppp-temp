@@ -354,6 +354,13 @@ void AKnowledgeGraph::Calculatechargeforceandupdatevelocity()
 
 
 			}
+
+			Accumulate();
+		
+			for (auto& node : all_nodes)
+			{
+				ApplyManyBody(node.Value);
+			}
 		}
 		else
 		{
@@ -363,16 +370,11 @@ void AKnowledgeGraph::Calculatechargeforceandupdatevelocity()
 				// 100.0f
 
 			);
-
+			
 		}
 
 
-		Accumulate();
 		
-		for (auto& node : all_nodes)
-		{
-			ApplyManyBody(node.Value);
-		}
 	}
 }
 
