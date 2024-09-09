@@ -138,7 +138,7 @@ bool SampleCallback(OctreeNode* node) {
 
 
 
-//
+
 // void OctreeNode::AddAll(const TArray<DataPoint>& Data) {
 //     int32 N = Data.Num();
 //     TArray<float> Xz, Yz, Zz;
@@ -172,11 +172,13 @@ bool SampleCallback(OctreeNode* node) {
 //     }
 //
 //     // Cover the extent
-//     Cover(X0, Y0, Z0);
-//     Cover(X1, Y1, Z1);
 //
-//     // Add the new points
-//     for (int i = 0; i < N; ++i) {
-//         Add(Xz[i], Yz[i], Zz[i], Data[i]);
-//     }
+//
+//     // Cover(X0, Y0, Z0);
+//     // Cover(X1, Y1, Z1);
+//     //
+//     // // Add the new points
+//     // for (int i = 0; i < N; ++i) {
+//     //     Add(Xz[i], Yz[i], Zz[i], Data[i]);
+//     // }
 // }

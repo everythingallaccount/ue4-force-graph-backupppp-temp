@@ -370,6 +370,8 @@ void AKnowledgeGraph::Calculatechargeforceandupdatevelocity()
 				// 100.0f
 
 			);
+
+			
 			
 		}
 
