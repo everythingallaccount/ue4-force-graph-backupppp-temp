@@ -61,6 +61,8 @@ void OctreeNode::Subdivide() {
 
 void AddDataPoint(OctreeNode* node, FVector newPoint, FVector velocity) {
     if (!node->IsLeaf()) {
+
+        // Recursively found the leaf node to add the data point
         for (auto* child : node->Children) {
             if (child->ContainsPoint(newPoint)) {
                 AddDataPoint(child, newPoint, velocity);
@@ -69,9 +71,11 @@ void AddDataPoint(OctreeNode* node, FVector newPoint, FVector velocity) {
         }
     } else {
         if (node->Data != nullptr) {
+            // If the node already has data, subdivide and add the new data point
             node->Subdivide();
             AddDataPoint(node, newPoint, velocity);
         } else {
+            // No data is associated with the current node
             node->Data = new PointData(newPoint, velocity);
             node->TotalDataPoints = 1; // Now properly accounting for the node having new data
         }
@@ -232,8 +236,8 @@ void OctreeNode::AddAll1(TMap<int32, AKnowledgeNode*> Map){
     Cover(X0, Y0, Z0);
     Cover(X1, Y1, Z1);
     
-    // // Add the new points
-    // for (int i = 0; i < N; ++i) {
-    //     Add(Xz[i], Yz[i], Zz[i], Data[i]);
-    // }
+    // Add the new points
+    for (int i = 0; i < N; ++i) {
+        Add(Xz[i], Yz[i], Zz[i], Data[i]);
+    }
 }
