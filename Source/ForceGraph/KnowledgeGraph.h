@@ -105,6 +105,7 @@ public:
 	~AKnowledgeGraph();
 	void GenerateConnectedGraph(int32 NumClusters, int32 NodesPerCluster);
 	void CalculatelinkAndatevelocity();
+	void Calculatechargeforceandupdatevelocity();
 	void DoWork2();
 	void DoWork1();
 

@@ -8,13 +8,8 @@ Extent(extent),
 TotalDataPoints(0),
 CenterOfMass(center),
 Data(nullptr) {
-    
     Children.SetNum(8, false);
-
 }
-
-
-
 
 OctreeNode::~OctreeNode() {
     for (auto* child : Children) {

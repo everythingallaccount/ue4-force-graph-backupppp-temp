@@ -296,14 +296,8 @@ void AKnowledgeGraph::CalculatelinkAndatevelocity()
 	}
 }
 
-void AKnowledgeGraph::ApplyForces()
+void AKnowledgeGraph::Calculatechargeforceandupdatevelocity()
 {
-	// In here velocity of all notes are zeroed
-	// In the following for loop, In the first few loop, the velocity is 0. 
-
-
-	CalculatelinkAndatevelocity();
-
 	if (1)
 	{
 		if (0)
@@ -368,7 +362,7 @@ void AKnowledgeGraph::ApplyForces()
 				// FVector(0, 0, 0),
 				// 100.0f
 
-				);
+			);
 
 		}
 
@@ -380,6 +374,17 @@ void AKnowledgeGraph::ApplyForces()
 			ApplyManyBody(node.Value);
 		}
 	}
+}
+
+void AKnowledgeGraph::ApplyForces()
+{
+	// In here velocity of all notes are zeroed
+	// In the following for loop, In the first few loop, the velocity is 0. 
+
+
+	CalculatelinkAndatevelocity();
+
+	Calculatechargeforceandupdatevelocity();
 }
 
 NodeStrength AKnowledgeGraph::AddUpChildren(
