@@ -11,6 +11,16 @@ Data(nullptr) {
     Children.SetNum(8, false);
 }
 
+OctreeNode::OctreeNode()
+    :
+// Center(center),
+// Extent(extent),
+TotalDataPoints(0),
+// CenterOfMass(center),
+Data(nullptr) {
+    Children.SetNum(8, false);
+}
+
 OctreeNode::~OctreeNode() {
     for (auto* child : Children) {
         delete child;
@@ -88,6 +98,11 @@ void OctreeNode::CalculateCenterOfMass() {
             TotalDataPoints = count;
         }
     }
+}
+
+void OctreeNode::Cover(float X0, float Y0, float Z0)
+{
+    
 }
 
 
@@ -178,9 +193,9 @@ void OctreeNode::AddAll1(TMap<int32, AKnowledgeNode*> Map){
     // Cover the extent
 
 
-    // Cover(X0, Y0, Z0);
-    // Cover(X1, Y1, Z1);
-    //
+    Cover(X0, Y0, Z0);
+    Cover(X1, Y1, Z1);
+    
     // // Add the new points
     // for (int i = 0; i < N; ++i) {
     //     Add(Xz[i], Yz[i], Zz[i], Data[i]);

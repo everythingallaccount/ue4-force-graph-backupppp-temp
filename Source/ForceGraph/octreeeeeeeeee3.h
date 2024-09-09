@@ -34,10 +34,14 @@ struct OctreeNode {
 
 
 	// default to be zero vector.  
-	OctreeNode(FVector center=FVector(0,0,0),
-		FVector extent=FVector(0,0,0)
+	OctreeNode(FVector center
+		// =FVector(0,0,0)
+		,
+		FVector extent
+		// =FVector(0,0,0)
 		);
 
+	OctreeNode();
 
 	~OctreeNode();
 
@@ -46,6 +50,7 @@ struct OctreeNode {
     
 	void Subdivide();
 	void CalculateCenterOfMass();
+	void Cover(float X0, float Y0, float Z0);
 	void AddAll1(TMap<int32, AKnowledgeNode*> Map1);
 };
 
