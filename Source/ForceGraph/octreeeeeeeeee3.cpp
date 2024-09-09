@@ -387,29 +387,25 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 			l >= distancemax)
 		{
 			return false;
-		} 
-
-
-
+		}
 
 
 		// For the function to reach here, it has to be a leaf node
 
 
-		
 		if (
 			// The data is not same as the current node. 
 			node->Data->Node != kn
 			||
 			node->Data->Next != nullptr
-			
+
 		)
 		{
 			//print("IM LEAF");
 			if (dir.X)
 			{
 				// (random() - 0.5) * 1e-6;
-				dir.X= (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
+				dir.X = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
 				l += dir.X * dir.X;
 			}
 			if (dir.Y)
@@ -429,27 +425,26 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 				l = sqrt(distancemin * l);
 
 
-			// do if (
-			// 			treeNode.data !== node
-			// 		) {
-			// 	w = strengths[treeNode.data.index] * alpha / l;
-			// 	node.vx += x * w;
-			// 	if (nDim > 1) {
-			// 		node.vy += y * w;
-			// 	}
-			// 	if (nDim > 2) {
-			// 		node.vz += z * w;
-			// 	}
-			// 		} while (treeNode = treeNode.next);
-			//
-
-			
-
-
-
-
 			
 		}
+
+
+
+
+
+		// do if (
+		// 			treeNode.data !== node
+		// 		) {
+		// 	w = strengths[treeNode.data.index] * alpha / l;
+		// 	node.vx += x * w;
+		// 	if (nDim > 1) {
+		// 		node.vy += y * w;
+		// 	}
+		// 	if (nDim > 2) {
+		// 		node.vz += z * w;
+		// 	}
+		// 		} while (treeNode = treeNode.next);
+		//
 		PointData* currentNode = node->Data;
 		while (1)
 		{
@@ -457,26 +452,21 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 				currentNode->Node != kn
 			)
 			{
-				float w=currentNode->Node->strength * alpha / l;
+				float w = currentNode->Node->strength * alpha / l;
 
-					
+
 				kn->velocity += dir * w;
 			}
 			else
 			{
-
-					
 			}
 			if (currentNode->Next == nullptr)
 			{
 				break;
 			}
 			currentNode = currentNode->Next;
-
-				
 		}
 		return true;
-		
 	}
 }
 
