@@ -71,9 +71,11 @@ void AddDataPoint(OctreeNode* node, AKnowledgeNode* newNode);
 
 
 // Define the Callback Type
-using OctreeCallback = std::function<bool(OctreeNode*)>;
+using OctreeCallback = std::function<bool(OctreeNode*,AKnowledgeNode* kn, float alpha)>;
 
 // Declare the BFS traversal function
-void TraverseBFS(OctreeNode* root, OctreeCallback callback);
+// void TraverseBFS(OctreeNode* root, OctreeCallback callback);
+void TraverseBFS(OctreeNode* root, OctreeCallback callback, float alpha, AKnowledgeNode* kn);
 
-bool SampleCallback(OctreeNode* node);
+// bool SampleCallback(OctreeNode* node);
+bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha);

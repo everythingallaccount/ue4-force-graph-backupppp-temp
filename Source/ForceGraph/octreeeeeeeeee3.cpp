@@ -267,7 +267,7 @@ void OctreeNode::Cover(float x, float y, float z)
 	}
 }
 
-void TraverseBFS(OctreeNode* root, OctreeCallback callback)
+void TraverseBFS(OctreeNode* root, OctreeCallback callback, float alpha, AKnowledgeNode* kn)
 {
 	if (!root) return; // If the root is null, return immediately
 
@@ -280,7 +280,7 @@ void TraverseBFS(OctreeNode* root, OctreeCallback callback)
 		nodeQueue.pop();
 
 		// Execute the callback on the current node
-		bool skipChildren = callback(currentNode);
+		bool skipChildren = callback(currentNode, kn, alpha);
 
 		// If callback returns true, do not enqueue children
 		if (skipChildren)
