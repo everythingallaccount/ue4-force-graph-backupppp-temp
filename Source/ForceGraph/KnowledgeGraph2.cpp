@@ -373,6 +373,7 @@ void AKnowledgeGraph::Calculatechargeforceandupdatevelocity()
 
 			OctreeData2->AddAll1(all_nodes);
 			
+			
 		}
 
 

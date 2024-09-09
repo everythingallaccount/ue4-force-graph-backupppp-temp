@@ -2,6 +2,8 @@
 
 #include <queue>
 
+#include "utillllllssss.h"
+
 OctreeNode::OctreeNode(FVector center, FVector extent)
     : Center(center),
 Extent(extent),
@@ -235,9 +237,10 @@ void OctreeNode::AddAll1(TMap<int32, AKnowledgeNode*> Map){
 
     Cover(X0, Y0, Z0);
     Cover(X1, Y1, Z1);
-    
+
+    ll("!!!!New center and you extend will be set to: " + Center.ToString() + " " + Extent.ToString());
     // Add the new points
-    for (int i = 0; i < N; ++i) {
-        Add(Xz[i], Yz[i], Zz[i], Data[i]);
-    }
+    // for (int i = 0; i < N; ++i) {
+    //     Add(Xz[i], Yz[i], Zz[i], Data[i]);
+    // }
 }
