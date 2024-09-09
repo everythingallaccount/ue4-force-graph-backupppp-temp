@@ -46,6 +46,7 @@ struct OctreeNode {
     
 	void Subdivide();
 	void CalculateCenterOfMass();
+	void AddAll1(TMap<int32, AKnowledgeNode*> Map1);
 };
 
 void AddDataPoint(OctreeNode* node, FVector newPoint, FVector velocity);
