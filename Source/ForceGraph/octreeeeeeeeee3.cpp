@@ -46,6 +46,8 @@ void OctreeNode::Subdivide() {
 
     FVector NewExtent = Extent * 0.5;
     PointData* OldData = Data;
+
+    
     Data = nullptr;  // Clear current data as it's redistributed to children
 
     for (int i = 0; i < 8; ++i) {
@@ -57,19 +59,20 @@ void OctreeNode::Subdivide() {
         Children[i] = new OctreeNode(NewCenter, NewExtent);
     }
 
-    AddDataPoint(this, OldData->Position, OldData->Velocity);
+    AddDataPoint(this, OldData->Node);  // Add the old data point to the children
     delete OldData;  // Deleting the old data after redistributing
 }
 
-void AddDataPoint(OctreeNode* node, FVector newPoint, FVector velocity) {
+void AddDataPoint(OctreeNode* node, AKnowledgeNode* kn) {
 
+    FVector newPoint = kn->GetActorLocation();
 
 
     if (!node->IsLeaf()) {
         // Recursively found the leaf node to add the data point
         for (auto* child : node->Children) {
             if (child->ContainsPoint(newPoint)) {
-                AddDataPoint(child, newPoint, velocity);
+                AddDataPoint(child, kn);
                 return;
             }
         }
@@ -77,11 +80,11 @@ void AddDataPoint(OctreeNode* node, FVector newPoint, FVector velocity) {
         if (node->Data != nullptr) {
             // If the node already has data, subdivide and add the new data point
             node->Subdivide();
-            AddDataPoint(node, newPoint, velocity);
+            AddDataPoint(node, kn);
         } else {
 
             // No data is associated with the current node
-            node->Data = new PointData(newPoint, velocity);
+            node->Data = new PointData(kn);
             node->TotalDataPoints = 1; // Now properly accounting for the node having new data
         }
     }
@@ -90,7 +93,7 @@ void AddDataPoint(OctreeNode* node, FVector newPoint, FVector velocity) {
 void OctreeNode::CalculateCenterOfMass() {
     if (IsLeaf()) {
         if (Data) {
-            CenterOfMass = Data->Position;
+            CenterOfMass = Data->Node->GetActorLocation();
             TotalDataPoints = 1;
         }
     } else {
@@ -185,9 +188,9 @@ bool SampleCallback(OctreeNode* node) {
     const float threshold = 10.0f;
 
     // Example condition: stop traversal if any point's x-coordinate is greater than threshold
-    if (node->Data->Position.X > threshold) {
+    if (node->Data->Node->GetActorLocation().X > threshold) {
         // Print/log some information (in Unreal it could be UE_LOG or GLog)
-        UE_LOG(LogTemp, Warning, TEXT("Node with Data exceeding threshold found at X: %f"), node->Data->Position.X);
+        UE_LOG(LogTemp, Warning, TEXT("Node with Data exceeding threshold found at X: %f"), node->Data->Node->GetActorLocation().X);
         return true;  // Stop visiting further children of this node
     }
 
@@ -244,10 +247,8 @@ void OctreeNode::AddAll1(TMap<int32, AKnowledgeNode*> Map){
     ll("!!!!New center and you extend will be set to: " + Center.ToString() + " " + Extent.ToString());
     // Add the new points
     for (int i = 0; i < N; ++i) {
-        FVector D = Map[i]->GetActorLocation();
-        AddDataPoint(this,
-            D,
-            FVector(0,0,0)
-            );
+        AddDataPoint(this, Map[i]);
+                            
+            
     }
 }

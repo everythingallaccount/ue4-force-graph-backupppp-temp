@@ -8,15 +8,19 @@
 
 struct PointData
 {
-	FVector Position;
-	FVector Velocity;
+	// FVector Position;
+	// FVector Velocity;
 	AKnowledgeNode* Node;
 
 	PointData(
-		FVector position = FVector(),
-		FVector velocity = FVector()
-	)
-		: Position(position), Velocity(velocity)
+		// FVector position = FVector(),
+		// FVector velocity = FVector()
+		AKnowledgeNode* node = nullptr
+		)
+		:
+	// Position(position),
+	// Velocity(velocity)
+	Node(node)
 	{
 	}
 
@@ -57,7 +61,7 @@ struct OctreeNode
 	void AddAll1(TMap<int32, AKnowledgeNode*> Map1);
 };
 
-void AddDataPoint(OctreeNode* node, FVector newPoint, FVector velocity);
+void AddDataPoint(OctreeNode* node, AKnowledgeNode* newNode);
 
 
 // Define the Callback Type
