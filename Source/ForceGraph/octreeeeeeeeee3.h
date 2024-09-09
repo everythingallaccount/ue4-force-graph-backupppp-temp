@@ -40,7 +40,8 @@ struct OctreeNode
 	FVector CenterOfMass;
 	int TotalDataPoints = 0;
 	double Strength;
-	double TotalWeight;
+	bool StrengthSet = false;
+	// double TotalWeight;
 
 
 	// default to be zero vector.  

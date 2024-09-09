@@ -5,318 +5,370 @@
 #include "utillllllssss.h"
 
 OctreeNode::OctreeNode(FVector center, FVector extent)
-    : Center(center),
-Extent(extent),
-TotalDataPoints(0),
-CenterOfMass(center),
-Data(nullptr) {
-    Children.SetNum(8, false);
-    isCenterSet=true;
+	: Center(center),
+	  Extent(extent),
+	  TotalDataPoints(0),
+	  CenterOfMass(center),
+	  Data(nullptr)
+{
+	Children.SetNum(8, false);
+	isCenterSet = true;
 }
 
 OctreeNode::OctreeNode()
-    :
-// Center(center),
-// Extent(extent),
-TotalDataPoints(0),
-// CenterOfMass(center),
-Data(nullptr) {
-    Children.SetNum(8, false);
+	:
+	// Center(center),
+	// Extent(extent),
+	TotalDataPoints(0),
+	// CenterOfMass(center),
+	Data(nullptr)
+{
+	Children.SetNum(8, false);
 }
 
-OctreeNode::~OctreeNode() {
-    for (auto* child : Children) {
-        delete child;
-    }
-    delete Data;
+OctreeNode::~OctreeNode()
+{
+	for (auto* child : Children)
+	{
+		delete child;
+	}
+	delete Data;
 }
 
-bool OctreeNode::IsLeaf() const {
-    return Children[0] == nullptr;
+bool OctreeNode::IsLeaf() const
+{
+	return Children[0] == nullptr;
 }
 
-bool OctreeNode::ContainsPoint(const FVector point) const {
-    return (FMath::Abs(point.X - Center.X) <= Extent.X &&
-            FMath::Abs(point.Y - Center.Y) <= Extent.Y &&
-            FMath::Abs(point.Z - Center.Z) <= Extent.Z);
+bool OctreeNode::ContainsPoint(const FVector point) const
+{
+	return (FMath::Abs(point.X - Center.X) <= Extent.X &&
+		FMath::Abs(point.Y - Center.Y) <= Extent.Y &&
+		FMath::Abs(point.Z - Center.Z) <= Extent.Z);
 }
 
-void OctreeNode::Subdivide() {
-    if (
-        !IsLeaf()   // 
-        ||
-        Data == nullptr // 
+void OctreeNode::Subdivide()
+{
+	if (
+		!IsLeaf() // 
+		||
+		Data == nullptr // 
 
-        // These two conditions shall never matter, because dysfunctions before calling shall already have the checking. 
-        ) return;
+			// These two conditions shall never matter, because dysfunctions before calling shall already have the checking. 
+	)
+		return;
 
-    FVector NewExtent = Extent * 0.5;
-    PointData* OldData = Data;
+	FVector NewExtent = Extent * 0.5;
+	PointData* OldData = Data;
 
-    
-    Data = nullptr;  // Clear current data as it's redistributed to children
 
-    for (int i = 0; i < 8; ++i) {
-        FVector NewCenter = Center + FVector(
-            (i & 4) ? NewExtent.X : -NewExtent.X,
-            (i & 2) ? NewExtent.Y : -NewExtent.Y,
-            (i & 1) ? NewExtent.Z : -NewExtent.Z
-        );
-        Children[i] = new OctreeNode(NewCenter, NewExtent);
-    }
+	Data = nullptr; // Clear current data as it's redistributed to children
 
-    AddDataPoint(this, OldData->Node);  // Add the old data point to the children
-    delete OldData;  // Deleting the old data after redistributing
+	for (int i = 0; i < 8; ++i)
+	{
+		FVector NewCenter = Center + FVector(
+			(i & 4) ? NewExtent.X : -NewExtent.X,
+			(i & 2) ? NewExtent.Y : -NewExtent.Y,
+			(i & 1) ? NewExtent.Z : -NewExtent.Z
+		);
+		Children[i] = new OctreeNode(NewCenter, NewExtent);
+	}
+
+	AddDataPoint(this, OldData->Node); // Add the old data point to the children
+	delete OldData; // Deleting the old data after redistributing
 }
 
-void AddDataPoint(OctreeNode* node, AKnowledgeNode* kn) {
+void AddDataPoint(OctreeNode* node, AKnowledgeNode* kn)
+{
+	FVector newPoint = kn->GetActorLocation();
 
-    FVector newPoint = kn->GetActorLocation();
 
-
-    if (!node->IsLeaf()) {
-        // Recursively found the leaf node to add the data point
-        for (auto* child : node->Children) {
-            if (child->ContainsPoint(newPoint)) {
-                AddDataPoint(child, kn);
-                return;
-            }
-        }
-    } else {
-        if (
-            node->Data != nullptr
-            ) {
-            // If the node already has data, subdivide and add the new data point
-            node->Subdivide();
-            AddDataPoint(node, kn);
-        } else {
-
-            // No data is associated with the current node
-            node->Data = new PointData(kn);
-            node->TotalDataPoints = 1; // Now properly accounting for the node having new data
-        }
-    }
+	if (!node->IsLeaf())
+	{
+		// Recursively found the leaf node to add the data point
+		for (auto* child : node->Children)
+		{
+			if (child->ContainsPoint(newPoint))
+			{
+				AddDataPoint(child, kn);
+				return;
+			}
+		}
+	}
+	else
+	{
+		if (
+			node->Data != nullptr
+		)
+		{
+			// If the node already has data, subdivide and add the new data point
+			node->Subdivide();
+			AddDataPoint(node, kn);
+		}
+		else
+		{
+			// No data is associated with the current node
+			node->Data = new PointData(kn);
+			node->TotalDataPoints = 1; // Now properly accounting for the node having new data
+		}
+	}
 }
 
-void OctreeNode::CalculateCenterOfMass() {
-    if (IsLeaf()) {
-        if (Data) {
-            CenterOfMass = Data->Node->GetActorLocation();
-            TotalDataPoints = 1;
-        }
-    } else {
-        FVector aggregateMass = FVector(0);
-        int count = 0;
-        for (OctreeNode* child : Children) {
-            if (child != nullptr) {
-                child->CalculateCenterOfMass();
-                aggregateMass += child->CenterOfMass * child->TotalDataPoints;
-                count += child->TotalDataPoints;
-            }
-        }
-        if (count > 0) {
-            CenterOfMass = aggregateMass / count;
-            TotalDataPoints = count;
-        }
-    }
+void OctreeNode::CalculateCenterOfMass()
+{
+	if (IsLeaf())
+	{
+		if (Data)
+		{
+			CenterOfMass = Data->Node->GetActorLocation();
+			TotalDataPoints = 1;
+		}
+	}
+	else
+	{
+		FVector aggregateMass = FVector(0);
+		int count = 0;
+		for (OctreeNode* child : Children)
+		{
+			if (child != nullptr)
+			{
+				child->CalculateCenterOfMass();
+				aggregateMass += child->CenterOfMass * child->TotalDataPoints;
+				count += child->TotalDataPoints;
+			}
+		}
+		if (count > 0)
+		{
+			CenterOfMass = aggregateMass / count;
+			TotalDataPoints = count;
+		}
+	}
 }
 
 
-void OctreeNode::AccumulateStrengthAndComputeCenterOfMass() {
-    FVector aggregatePosition = FVector(0);
-    double aggregateStrength = 0.0;
-    int totalWeight = 0;
-    
-    if (IsLeaf()) {
-        if (Data) {
-            FVector position = Data->Node->GetActorLocation();
-            double strength = Data->Node->strength;
+void OctreeNode::AccumulateStrengthAndComputeCenterOfMass()
+{
+	FVector aggregatePosition = FVector(0);
+	double aggregateStrength = 0.0;
+	int totalWeight = 0;
+
+	if (IsLeaf())
+	{
+		if (Data)
+		{
+			FVector position = Data->Node->GetActorLocation();
+			double strength = Data->Node->strength;
 
 
-            Strength = strength;
+			Strength = strength;
+			StrengthSet=true;
+
+			// TotalWeight = FMath::Abs(strength);
 
 
-            TotalWeight = FMath::Abs(strength);
+			// In javascript implementations,
+			// we extract the value of that node and assign directly xyz property  
+			CenterOfMass = position; // Assign directly for leaf nodes
+		}
+		else
+		{
+			// If no data is associated with this Leave node, we will never record the total weight and strength.
+			// StrengthSet=false;
+		}
+	}
+	else
+	{
+		// Recursive accumulation from children nodes
+		for (OctreeNode* child : Children)
+		{
+			if (
+				child != nullptr
+			)
+			{
+				child->AccumulateStrengthAndComputeCenterOfMass();
+
+				
+				if (
+					
+					child->StrengthSet
+
+					)
+				{
+
+					float c= FMath::Abs(child->Strength);
+					
+					aggregateStrength += child->Strength;
 
 
-            // In javascript implementations,
-            // we extract the value of that node and assign directly xyz property  
-            CenterOfMass = position; // Assign directly for leaf nodes
+					totalWeight += c;
 
-            
-        }
-    } else {
-        // Recursive accumulation from children nodes
-        for (OctreeNode* child : Children) {
-            if (child != nullptr) {
+					aggregatePosition += c * child->CenterOfMass ;
 
-                child->AccumulateStrengthAndComputeCenterOfMass();
+				}
+			}
+			else
+			{
+				// Should never happens here,
+				// because if this is not a leaf note, all the child should not be an empty pointer. 
+			}
+		}
 
-                aggregatePosition += child->CenterOfMass * child->TotalWeight;
-                aggregateStrength += child->Strength;
-                totalWeight += child->TotalWeight;
-            }
-        }
+		// Calculate the center of mass based on total weight
+		if (totalWeight > 0)
+		{
+			Strength *= sqrt(4.0 / 8);
 
-        // Calculate the center of mass based on total weight
-        if (totalWeight > 0) {
-            CenterOfMass = aggregatePosition / totalWeight;
-            CenterOfMass.X = CenterOfMass.X; // Explicit for clarity
+			CenterOfMass = aggregatePosition / totalWeight;
 
-            if (nDim > 1) {
-                CenterOfMass.Y = aggregatePosition.Y / totalWeight;
-            }
-            if (nDim > 2) {
-                CenterOfMass.Z = aggregatePosition.Z / totalWeight;
-            }
+			Strength = aggregateStrength; // Optionally, adjust strength scaling here
+			// TotalWeight = totalWeight;
 
-            Strength = aggregateStrength; // Optionally, adjust strength scaling here
-            TotalWeight = totalWeight;
-            
-            // Scale the strength if it might need to be normalized by the number of child nodes
-            if (Children.Num() > 0) {
-                Strength *= sqrt(4.0 / Children.Num());
-            }
-        }
-    }
+		}
+	}
 }
 
 void OctreeNode::Cover(float x, float y, float z)
 {
-    // intended to call on the lower bound and the highest bound of all the data combined. 
-
-    
-    FVector point(x, y, z);
-    if (!isCenterSet) {
-        // Set the initial bounds as the data point acting as the lowest bound.
-        FVector minBound = FVector(FMath::FloorToFloat(x), FMath::FloorToFloat(y), FMath::FloorToFloat(z));
-        
-        // Assuming the initial extent should be (1,1,1)
-        FVector initialExtent = FVector(1, 1, 1);
-        
-        // The center will be the minBound plus half of the initial extent
-        Center = minBound + initialExtent * 0.5f;
-        Extent = initialExtent * 0.5f;
-        
-        isCenterSet = true;
-        return;
-    }
-
-    while (!ContainsPoint(point)) {
+	// intended to call on the lower bound and the highest bound of all the data combined. 
 
 
-        FVector temp= Center-Extent;
+	FVector point(x, y, z);
+	if (!isCenterSet)
+	{
+		// Set the initial bounds as the data point acting as the lowest bound.
+		FVector minBound = FVector(FMath::FloorToFloat(x), FMath::FloorToFloat(y), FMath::FloorToFloat(z));
 
-        
-        Extent *= 2; // Double the size of the octree
-        // Determine the direction to adjust the center based on where the point lies
+		// Assuming the initial extent should be (1,1,1)
+		FVector initialExtent = FVector(1, 1, 1);
 
-        Center=temp+Extent;
+		// The center will be the minBound plus half of the initial extent
+		Center = minBound + initialExtent * 0.5f;
+		Extent = initialExtent * 0.5f;
 
-        // FVector direction = point - Center;
-        // Center += FVector(
-        //     (direction.X < 0) ? -Extent.X / 2 : Extent.X / 2,
-        //     (direction.Y < 0) ? -Extent.Y / 2 : Extent.Y / 2,
-        //     (direction.Z < 0) ? -Extent.Z / 2 : Extent.Z / 2
-        // );
-    }  
+		isCenterSet = true;
+		return;
+	}
+
+	while (!ContainsPoint(point))
+	{
+		FVector temp = Center - Extent;
+
+
+		Extent *= 2; // Double the size of the octree
+		// Determine the direction to adjust the center based on where the point lies
+
+		Center = temp + Extent;
+
+		// FVector direction = point - Center;
+		// Center += FVector(
+		//     (direction.X < 0) ? -Extent.X / 2 : Extent.X / 2,
+		//     (direction.Y < 0) ? -Extent.Y / 2 : Extent.Y / 2,
+		//     (direction.Z < 0) ? -Extent.Z / 2 : Extent.Z / 2
+		// );
+	}
 }
 
-void TraverseBFS(OctreeNode* root, OctreeCallback callback) {
-    if (!root) return; // If the root is null, return immediately
+void TraverseBFS(OctreeNode* root, OctreeCallback callback)
+{
+	if (!root) return; // If the root is null, return immediately
 
-    std::queue<OctreeNode*> nodeQueue;
-    nodeQueue.push(root);
+	std::queue<OctreeNode*> nodeQueue;
+	nodeQueue.push(root);
 
-    while (!nodeQueue.empty()) {
-        OctreeNode* currentNode = nodeQueue.front();
-        nodeQueue.pop();
+	while (!nodeQueue.empty())
+	{
+		OctreeNode* currentNode = nodeQueue.front();
+		nodeQueue.pop();
 
-        // Execute the callback on the current node
-        bool skipChildren = callback(currentNode);
+		// Execute the callback on the current node
+		bool skipChildren = callback(currentNode);
 
-        // If callback returns true, do not enqueue children
-        if (skipChildren) {
-            continue;
-        }
+		// If callback returns true, do not enqueue children
+		if (skipChildren)
+		{
+			continue;
+		}
 
-        // Otherwise, enqueue all non-null children
-        for (OctreeNode* child : currentNode->Children) {
-            if (child) {
-                nodeQueue.push(child);
-            }
-        }
-    }
+		// Otherwise, enqueue all non-null children
+		for (OctreeNode* child : currentNode->Children)
+		{
+			if (child)
+			{
+				nodeQueue.push(child);
+			}
+		}
+	}
 }
 
-bool SampleCallback(OctreeNode* node) {
-    if (!node || !node->Data) return false;  // If no data, continue traversal
+bool SampleCallback(OctreeNode* node)
+{
+	if (!node || !node->Data) return false; // If no data, continue traversal
 
-    // Set a threshold value for some condition
-    const float threshold = 10.0f;
+	// Set a threshold value for some condition
+	const float threshold = 10.0f;
 
-    // Example condition: stop traversal if any point's x-coordinate is greater than threshold
-    if (node->Data->Node->GetActorLocation().X > threshold) {
-        // Print/log some information (in Unreal it could be UE_LOG or GLog)
-        UE_LOG(LogTemp, Warning, TEXT("Node with Data exceeding threshold found at X: %f"), node->Data->Node->GetActorLocation().X);
-        return true;  // Stop visiting further children of this node
-    }
+	// Example condition: stop traversal if any point's x-coordinate is greater than threshold
+	if (node->Data->Node->GetActorLocation().X > threshold)
+	{
+		// Print/log some information (in Unreal it could be UE_LOG or GLog)
+		UE_LOG(LogTemp, Warning, TEXT("Node with Data exceeding threshold found at X: %f"),
+		       node->Data->Node->GetActorLocation().X);
+		return true; // Stop visiting further children of this node
+	}
 
-    return false;  // Continue to visit children
+	return false; // Continue to visit children
 }
+
 // Assuming `root` is the root of your Octree and it's properly initialized
 // TraverseBFS(root, SampleCallback);
 
 
+void OctreeNode::AddAll1(TMap<int32, AKnowledgeNode*> Map)
+{
+	int32 N = Map.Num();
 
 
-void OctreeNode::AddAll1(TMap<int32, AKnowledgeNode*> Map){
+	TArray<float> Xz, Yz, Zz;
+	Xz.Reserve(N);
+	Yz.Reserve(N);
+	Zz.Reserve(N);
 
-    
-    int32 N = Map.Num();
+	float X0 = std::numeric_limits<float>::infinity();
+	float Y0 = std::numeric_limits<float>::infinity();
+	float Z0 = std::numeric_limits<float>::infinity();
+	float X1 = -std::numeric_limits<float>::infinity();
+	float Y1 = -std::numeric_limits<float>::infinity();
+	float Z1 = -std::numeric_limits<float>::infinity();
 
+	// Compute the points and their extent
+	for (int i = 0; i < N; ++i)
+	{
+		FVector D = Map[i]->GetActorLocation();
+		float X = D.X;
+		float Y = D.Y;
+		float Z = D.Z;
+		Xz.Add(X);
+		Yz.Add(Y);
+		Zz.Add(Z);
 
-    TArray<float> Xz, Yz, Zz;
-    Xz.Reserve(N);
-    Yz.Reserve(N);
-    Zz.Reserve(N);
+		X0 = FMath::Min(X0, X);
+		Y0 = FMath::Min(Y0, Y);
+		Z0 = FMath::Min(Z0, Z);
+		X1 = FMath::Max(X1, X);
+		Y1 = FMath::Max(Y1, Y);
+		Z1 = FMath::Max(Z1, Z);
+	}
 
-    float X0 = std::numeric_limits<float>::infinity();
-    float Y0 = std::numeric_limits<float>::infinity();
-    float Z0 = std::numeric_limits<float>::infinity();
-    float X1 = -std::numeric_limits<float>::infinity();
-    float Y1 = -std::numeric_limits<float>::infinity();
-    float Z1 = -std::numeric_limits<float>::infinity();
-
-    // Compute the points and their extent
-    for (int i = 0; i < N; ++i) {
-        FVector D = Map[i]->GetActorLocation();
-        float X = D.X;
-        float Y = D.Y;
-        float Z = D.Z;
-        Xz.Add(X);
-        Yz.Add(Y);
-        Zz.Add(Z);
-
-        X0 = FMath::Min(X0, X);
-        Y0 = FMath::Min(Y0, Y);
-        Z0 = FMath::Min(Z0, Z);
-        X1 = FMath::Max(X1, X);
-        Y1 = FMath::Max(Y1, Y);
-        Z1 = FMath::Max(Z1, Z);
-    }
-
-    // Cover the extent
+	// Cover the extent
 
 
-    Cover(X0, Y0, Z0);
-    Cover(X1, Y1, Z1);
+	Cover(X0, Y0, Z0);
+	Cover(X1, Y1, Z1);
 
-    ll("!!!!New center and you extend will be set to: " + Center.ToString() + " " + Extent.ToString());
-    // Add the new points
-    for (int i = 0; i < N; ++i) {
-        AddDataPoint(this, Map[i]);
-                            
-            
-    }
+	ll("!!!!New center and you extend will be set to: " + Center.ToString() + " " + Extent.ToString());
+	// Add the new points
+	for (int i = 0; i < N; ++i)
+	{
+		AddDataPoint(this, Map[i]);
+	}
 }
