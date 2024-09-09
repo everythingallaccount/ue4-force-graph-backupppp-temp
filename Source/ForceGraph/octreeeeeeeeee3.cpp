@@ -3,6 +3,7 @@
 #include <queue>
 
 #include "utillllllssss.h"
+#include "Chaos/AABB.h"
 
 OctreeNode::OctreeNode(FVector center, FVector extent)
 	: Center(center),
@@ -301,23 +302,152 @@ void TraverseBFS(OctreeNode* root, OctreeCallback callback)
 	}
 }
 
-bool SampleCallback(OctreeNode* node)
+bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn)
 {
-	if (!node || !node->Data) return false; // If no data, continue traversal
-
-	// Set a threshold value for some condition
-	const float threshold = 10.0f;
-
-	// Example condition: stop traversal if any point's x-coordinate is greater than threshold
-	if (node->Data->Node->GetActorLocation().X > threshold)
+	if (0)
 	{
-		// Print/log some information (in Unreal it could be UE_LOG or GLog)
-		UE_LOG(LogTemp, Warning, TEXT("Node with Data exceeding threshold found at X: %f"),
-		       node->Data->Node->GetActorLocation().X);
-		return true; // Stop visiting further children of this node
+		if (!node || !node->Data) return false; // If no data, continue traversal
+
+		// Set a threshold value for some condition
+		const float threshold = 10.0f;
+
+		// Example condition: stop traversal if any point's x-coordinate is greater than threshold
+		if (node->Data->Node->GetActorLocation().X > threshold)
+		{
+			// Print/log some information (in Unreal it could be UE_LOG or GLog)
+			UE_LOG(LogTemp, Warning, TEXT("Node with Data exceeding threshold found at X: %f"),
+			       node->Data->Node->GetActorLocation().X);
+			return true; // Stop visiting further children of this node
+		}
+
+		return false; // Continue to visit children
+	}
+	else
+	{
+
+	
+	
+	// FVector center = CurrentBounds.Center;
+	FVector width = node->Extent;
+
+
+	
+	FVector dir = node->CenterOfMass - kn->GetActorLocation();
+		
+
+	// Remember that direction is the sum of all the Actor locations of the elements in that note. 
+	float l = dir.Size() * dir.Size();
+
+	float theta2 = 0.81;
+	float distancemax=1000000000;
+	long double distancemin=1;
+	// if size of current box is less than distance between nodes
+	// This is used to stop recurring down the tree.
+	if (width.X * width.X / theta2 < l)
+	{
+		//        print("GOING IN HERE");
+		if (l < distancemax)
+		{
+			if (dir.X==0)
+			{
+				// Assign a random value   // return (random() - 0.5) * 1e-6;
+				dir.X = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
+				// l += x * x;
+				l += dir.X * dir.X;
+				
+			}
+			if (dir.Y==0)
+			{
+				// Assign a random value   // return (random() - 0.5) * 1e-6;
+				dir.Y = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
+				// l += x * x;
+				l += dir.Y * dir.Y;
+				
+			}
+			if (dir.Z==0)
+			{
+				// Assign a random value   // return (random() - 0.5) * 1e-6;
+				dir.Z = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
+				// l += x * x;
+				l += dir.Z * dir.Z;
+			}
+			
+
+
+			
+			if (l < distancemin)
+				l = sqrt(distancemin * l);
+
+
+			
+			//print(FString::SanitizeFloat(ns.strength));
+
+			// float mult = pow(ns.strength / nodeStrength, 1.0);
+			kn->velocity += dir
+			*
+				node->Strength
+			*
+			std::ctype_base::alpha / l;
+		}
+		return true;
 	}
 
-	return false; // Continue to visit children
+	// if not leaf, get all children
+
+	// People do we have to check on L bigger than distance max?
+	// FOREACH_OCTREE_CHILD_NODE3 Will not run if the note is LeaF note. , even if L is bigger than distance max. 
+	if (!node->IsLeaf() || l >= distancemax)
+	{
+		//recurse down this dude
+		//        print("IM NO LEAF");
+		//print("NOT A LEAF");
+		int count = 0;
+		FOREACH_OCTREE_CHILD_NODE3(ChildRef)
+		{
+			if (node.HasChild(ChildRef))
+			{
+				FindManyBodyForce(
+					kn,
+					*node.GetChild(ChildRef),
+					CurrentContext.GetChildContext(ChildRef),
+					node_id + FString::FromInt(count)
+				);
+				count++;
+			}
+		}
+	} //if leaf and close, apply elements directly
+	else if (node.IsLeaf())
+	{
+		//print("IM LEAF");
+		if (l < distancemin)
+		{
+			l = sqrt(distancemin * l);
+		}
+		for (FSimpleOctree::ElementConstIt ElementIt(node.GetElementIt()); ElementIt; ++ElementIt)
+		{
+			const FOctreeElement& Sample = *ElementIt;
+			if (Sample.MyActor->id != kn->id)
+			{
+				dir = Sample.MyActor->GetActorLocation() - kn->GetActorLocation();
+				l = dir.Size() * dir.Size();
+				float mult = pow(Sample.MyActor->numberOfConnected, 3.0);
+
+
+				if (0)
+				{
+					if (kn->id == 7 && alpha > 0.2)
+					{
+						// print(FString::FromInt(Sample.MyActor->id));
+						// print((dir * Sample.MyActor->strength * alpha / l * mult).ToString());
+					}
+				}
+
+				kn->velocity += dir * Sample.MyActor->strength * alpha / l * mult;
+			}
+		}
+	}
+
+	}
 }
 
 // Assuming `root` is the root of your Octree and it's properly initialized
