@@ -269,6 +269,8 @@ void OctreeNode::Cover(float x, float y, float z)
 
 void TraverseBFS(OctreeNode* root, OctreeCallback callback, float alpha, AKnowledgeNode* kn)
 {
+
+	// return;
 	if (!root) return; // If the root is null, return immediately
 
 	std::queue<OctreeNode*> nodeQueue;

@@ -1,4 +1,8 @@
 ﻿#include "utillllllssss.h"
+#include <fstream>
+
+// #include <iostream>
+
 #include "Engine/Engine.h"
 
 // void ll(const FString& StringToLog)
@@ -40,6 +44,58 @@ void ll(const FString& StringToLog, int SeverityLevel, const FString& Prefix)
 		}
 
 		
+	}
+}
+//
+// void lll(const std::string& LogMessage)
+// {
+// 	std::ofstream logFile("log.txt", std::ios::app); // Open the log file in append mode
+//
+// 	if (logFile.is_open()) {
+// 		logFile << logMessage << std::endl;
+// 		logFile.close(); // Close the file after writing to ensure data is written to disk
+// 	} else {
+// 		// Handle the error as needed
+// 		std::cerr << "Unable to open log file for writing." << std::endl;
+// 	}
+// }
+// void lll(const std::string& text)
+// {
+// 	// Create and open a text file in append mode
+// 	std::ofstream outFile("output.txt", std::ios::app); // Open in append mode
+//
+// 	if (!outFile.is_open()) {
+// 		std::cerr << "Failed to open file." << std::endl;
+// 		return;
+// 	}
+//
+// 	// Write the text to the file
+// 	outFile << text << std::endl;
+//
+// 	// Close the file
+// 	outFile.close();
+//
+// 	std::cout << "File written successfully." << std::endl;
+// }
+void lll(const FString& TextToWrite)
+{
+	// Define the path to the log file.
+	std::string FilePath = R"(V:\UNREALLLLPROJECTSSSSSS\FORCEGRAPH\Source\FORCEGRAPH\MyLogFile.txt)";  // Change path accordingly
+
+	// Open the log file with append mode.
+	std::ofstream LogFile(FilePath, std::ios::app);
+	if (LogFile.is_open())
+	{
+		// Write the text to the file and end with a new line.
+		LogFile << TCHAR_TO_ANSI(*TextToWrite) << std::endl;
+
+		// Close the file.
+		LogFile.close();
+	}
+	else
+	{
+		// Log an error message if file opening failed.
+		UE_LOG(LogTemp, Warning, TEXT("Failed to open log file."));
 	}
 }
 
