@@ -402,12 +402,18 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 
 		lll("tttttttttttttttt222222545");
 
+
+		bool bCond = node->Data->Node != kn;
+		lll("tttttttttttttttt2222225488888887");
+
+		
 		if (
 			// The data is not same as the current node. 
-			node->Data->Node != kn
-			||
-			node->Data->Next != nullptr
+			bCond
 			
+			// ||
+			// node->Data->Next != nullptr
+			//
 		)
 		{
 			lll("tttttttttttttttt222222546");
