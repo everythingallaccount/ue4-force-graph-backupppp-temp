@@ -400,15 +400,18 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 
 		// For the function to reach here, it has to be a leaf node
 
+		lll("tttttttttttttttt222222545");
 
 		if (
 			// The data is not same as the current node. 
 			node->Data->Node != kn
 			||
 			node->Data->Next != nullptr
-
+			
 		)
 		{
+			lll("tttttttttttttttt222222546");
+
 			//print("IM LEAF");
 			if (dir.X)
 			{
@@ -439,6 +442,7 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 
 
 
+		lll("tttttttttttttttt222222547");
 
 		// do if (
 		// 			treeNode.data !== node
@@ -453,26 +457,48 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 		// 	}
 		// 		} while (treeNode = treeNode.next);
 		//
-		PointData* currentNode = node->Data;
-		while (1)
+
+		if (0)
 		{
+			PointData* currentNode = node->Data;
+			while (1)
+			{
+				if (
+					currentNode->Node != kn
+				)
+				{
+					float w = currentNode->Node->strength * alpha / l;
+
+
+					kn->velocity += dir * w;
+				}
+				else
+				{
+				}
+				if (currentNode->Next == nullptr)
+				{
+					break;
+				}
+				currentNode = currentNode->Next;
+			}
+		}
+		else
+		{
+			PointData* currentNode = node->Data;
+			lll("tttttttttttttttt222222548");
+
 			if (
 				currentNode->Node != kn
 			)
 			{
+				lll("tttttttttttttttt222222549");
+
 				float w = currentNode->Node->strength * alpha / l;
-
-
 				kn->velocity += dir * w;
+
 			}
-			else
-			{
-			}
-			if (currentNode->Next == nullptr)
-			{
-				break;
-			}
-			currentNode = currentNode->Next;
+			lll("tttttttttttttttt222222599999999999999");
+
 		}
 		return true;
 	}

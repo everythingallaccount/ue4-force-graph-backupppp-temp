@@ -384,6 +384,8 @@ void AKnowledgeGraph::Calculatechargeforceandupdatevelocity()
 			{
 				TraverseBFS(OctreeData2,SampleCallback, alpha, node.Value);
 			}
+			lll("tttttttttttttttt898888888888888888888");
+
 		}
 
 
