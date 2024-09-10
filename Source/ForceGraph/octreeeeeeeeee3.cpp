@@ -275,11 +275,14 @@ void TraverseBFS(OctreeNode* root, OctreeCallback callback, float alpha, AKnowle
 
 	std::queue<OctreeNode*> nodeQueue;
 	nodeQueue.push(root);
-
+	lll("tttttttttttttttt2");
 	while (!nodeQueue.empty())
 	{
+		lll("tttttttttttttttt3");
+
 		OctreeNode* currentNode = nodeQueue.front();
 		nodeQueue.pop();
+		lll("tttttttttttttttt6");
 
 		// Execute the callback on the current node
 		bool skipChildren = callback(currentNode, kn, alpha);
@@ -303,6 +306,9 @@ void TraverseBFS(OctreeNode* root, OctreeCallback callback, float alpha, AKnowle
 
 bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 {
+
+	lll("tttttttttttttttt22222254");
+
 	if (0)
 	{
 		if (!node || !node->Data) return false; // If no data, continue traversal
