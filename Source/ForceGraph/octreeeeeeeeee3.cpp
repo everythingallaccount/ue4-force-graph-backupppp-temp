@@ -407,6 +407,7 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 
 		{
 			ll("Data is null");
+			return true;
 		}
 		else
 		{

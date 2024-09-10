@@ -29,7 +29,12 @@ void AKnowledgeGraph::BeginPlay()
 
 
 	UE_LOG(LogTemp, Warning, TEXT("Begin play called, Restricting tick interval"));
-	PrimaryActorTick.TickInterval = tick_interval;
+
+	if (use_tick_interval)
+	{
+		PrimaryActorTick.TickInterval = tick_interval;
+		
+	}
 
 
 	if (0)

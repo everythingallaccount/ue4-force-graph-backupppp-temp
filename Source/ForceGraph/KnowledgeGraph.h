@@ -156,15 +156,29 @@ public:
 	float distancemax = 10000000;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
 	float theta2 = 0.81;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
-	float tick_interval = 0.1f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
-	int jnodes1 = 300;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
-	int biasinitway=0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
+	// Use extremely small tick interval
+	bool use_tick_interval = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
+	float tick_interval = 0.1f;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
+	int jnodes1 = 300;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
+	int biasinitway=0;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
+	int modeeeeeeeee=1;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
 	float initialRadius = 10;
+
+
+	
 
 protected:
 	// Called when the game starts or when spawned
