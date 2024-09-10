@@ -269,7 +269,6 @@ void OctreeNode::Cover(float x, float y, float z)
 
 void TraverseBFS(OctreeNode* root, OctreeCallback callback, float alpha, AKnowledgeNode* kn)
 {
-
 	// return;
 	if (!root) return; // If the root is null, return immediately
 
@@ -306,7 +305,6 @@ void TraverseBFS(OctreeNode* root, OctreeCallback callback, float alpha, AKnowle
 
 bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 {
-
 	lll("tttttttttttttttt22222254");
 
 	if (0)
@@ -403,14 +401,39 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 		lll("tttttttttttttttt222222545");
 
 
+		lll("tttttttttttttttt222222545-");
+
+		if (node->Data == nullptr)
+
+		{
+			ll("Data is null");
+		}
+		else
+		{
+			if (node->Data->Node == nullptr)
+			{
+				lll("Pointer is null!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!.");
+			}
+			else
+			{
+				std::cout << "Pointer is not null." << std::endl;
+			}
+		}
+
+
 		bool bCond = node->Data->Node != kn;
+
+
+		lll("tttttttttttttttt2222225488888886");
+
+
 		lll("tttttttttttttttt2222225488888887");
 
-		
+
 		if (
 			// The data is not same as the current node. 
 			bCond
-			
+
 			// ||
 			// node->Data->Next != nullptr
 			//
@@ -440,12 +463,7 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 			// if (l < distanceMin2) l = Math.sqrt(distanceMin2 * l);
 			if (l < distancemin)
 				l = sqrt(distancemin * l);
-
-
-			
 		}
-
-
 
 
 		lll("tttttttttttttttt222222547");
@@ -501,10 +519,8 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 
 				float w = currentNode->Node->strength * alpha / l;
 				kn->velocity += dir * w;
-
 			}
 			lll("tttttttttttttttt222222599999999999999");
-
 		}
 		return true;
 	}

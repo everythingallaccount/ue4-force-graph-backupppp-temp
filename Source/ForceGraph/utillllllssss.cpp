@@ -79,23 +79,30 @@ void ll(const FString& StringToLog, int SeverityLevel, const FString& Prefix)
 // }
 void lll(const FString& TextToWrite)
 {
-	// Define the path to the log file.
-	std::string FilePath = R"(V:\UNREALLLLPROJECTSSSSSS\FORCEGRAPH\Source\FORCEGRAPH\MyLogFile.txt)";  // Change path accordingly
-
-	// Open the log file with append mode.
-	std::ofstream LogFile(FilePath, std::ios::app);
-	if (LogFile.is_open())
+	if (0)
 	{
-		// Write the text to the file and end with a new line.
-		LogFile << TCHAR_TO_ANSI(*TextToWrite) << std::endl;
+		// Define the path to the log file.
+		std::string FilePath = R"(V:\UNREALLLLPROJECTSSSSSS\FORCEGRAPH\Source\FORCEGRAPH\MyLogFile.txt)";  // Change path accordingly
 
-		// Close the file.
-		LogFile.close();
+		// Open the log file with append mode.
+		std::ofstream LogFile(FilePath, std::ios::app);
+		if (LogFile.is_open())
+		{
+			// Write the text to the file and end with a new line.
+			LogFile << TCHAR_TO_ANSI(*TextToWrite) << std::endl;
+
+			// Close the file.
+			LogFile.close();
+		}
+		else
+		{
+			// Log an error message if file opening failed.
+			UE_LOG(LogTemp, Warning, TEXT("Failed to open log file."));
+		}
 	}
 	else
 	{
-		// Log an error message if file opening failed.
-		UE_LOG(LogTemp, Warning, TEXT("Failed to open log file."));
+		ll(TextToWrite, 0, TEXT("[Info]"));
 	}
 }
 
