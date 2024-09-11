@@ -417,6 +417,48 @@ void AKnowledgeGraph::ApplyForces()
 	{
 		
 	}
+
+	// Following is javascript implementation of Center Force
+	// for (i = 0; i < n; ++i) {
+	// 	node = nodes[i],
+	// 		sx += node.x || 0,
+	// 		sy += node.y || 0,
+	// 		sz += node.z || 0;
+	// }
+	//
+	// for (sx = (sx / n - x) * strength,
+	// 		 sy = (sy / n - y) * strength,
+	// 		 sz = (sz / n - z) * strength,
+	// 		 i = 0;
+	// 	 i < n;
+	// 	 ++i
+	// ) {
+	// 	node = nodes[i];
+	// 	if (sx) {
+	// 		node.x -= sx
+	// 	}
+	// 	if (sy) {
+	// 		node.y -= sy;
+	// 	}
+	// 	if (sz) {
+	// 		node.z -= sz;
+	// 	}
+	// }
+	FVector center= FVector(0,0,0);
+	FVector aggregation = FVector(0, 0, 0);
+	for (auto& node : all_nodes)
+	{
+		aggregation+=node.Value->GetActorLocation();
+		
+	}
+	for (auto& node : all_nodes)
+	{
+		node.Value->SetActorLocation(
+			node.Value->GetActorLocation() - (aggregation / all_nodes.Num() - center) * 1
+			);
+	}
+
+	
 }
 
 // NodeStrength AKnowledgeGraph::AddUpChildren(
