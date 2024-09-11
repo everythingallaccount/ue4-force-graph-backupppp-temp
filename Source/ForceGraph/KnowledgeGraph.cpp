@@ -82,7 +82,8 @@ void AKnowledgeGraph::Tick(float DeltaTime)
 
 	if (1)
 	{
-		ll("TICK--------------------------------------");
+		ll("TICK----------------------------------------------------------------------------"
+	 "----------------------------------------------------------------------------");
 		ll("alpha: " + FString::SanitizeFloat(alpha));
 		ll("iterations: " + FString::FromInt(iterations));
 
@@ -93,6 +94,7 @@ void AKnowledgeGraph::Tick(float DeltaTime)
 		}
 
 		alpha += (alphaTarget - alpha) * alphaDecay; //need to restart this if want to keep moving
+		ll("alpha: " + FString::SanitizeFloat(alpha));
 
 
 		ApplyForces();
@@ -100,15 +102,17 @@ void AKnowledgeGraph::Tick(float DeltaTime)
 		for (auto& node : all_nodes)
 		{
 			auto kn = node.Value;
-			//            print("FINAL VELOCITY!");
-			//            print(kn->velocity.ToString());
-
+			ll("FINAL POSITION! node: " + FString::FromInt(node.Key));
+			ll("position: " + kn->GetActorLocation().ToString());
+			ll("velocity: " + kn->velocity.ToString());
+			
+			
+			
+			
 			kn->velocity *= velocityDecay;
 
 
-			// if (kn->id == 7 && alpha > 0.2)
-			// 	print("FINAL VELOCITY: " + kn->velocity.ToString());
-
+			
 
 			FVector NewLocation = kn->GetActorLocation() + kn->velocity;
 

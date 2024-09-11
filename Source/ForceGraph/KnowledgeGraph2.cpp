@@ -382,7 +382,7 @@ void AKnowledgeGraph::Calculatechargeforceandupdatevelocity()
 			// lll("tttttttttttttttttttttttt");
 			ll("!!!OctreeData2->CenterOfMass: " + OctreeData2->CenterOfMass.ToString());
 			ll("!!!OctreeData2->strength: " + FString::SanitizeFloat(OctreeData2->Strength));
-
+			
 			for (auto& node : all_nodes)
 			{
 				TraverseBFS(OctreeData2,SampleCallback, alpha, node.Value);
@@ -401,11 +401,12 @@ void AKnowledgeGraph::ApplyForces()
 	// In here velocity of all notes are zeroed
 	// In the following for loop, In the first few loop, the velocity is 0. 
 
-
+	ll("Ready to calculate link.--------------------------------------");
 	CalculatelinkAndatevelocity();
-
 	if (manybody)
 	{
+		ll("Ready to calculate charge.--------------------------------------");
+
 		Calculatechargeforceandupdatevelocity();
 	}
 	else

@@ -102,7 +102,14 @@ void lll(const FString& TextToWrite)
 	}
 	else
 	{
-		ll(TextToWrite, 0, TEXT("[Info]"));
+		if (0)
+		{
+			ll(TextToWrite, 0, TEXT("[Info]"));
+		}
+		else
+		{
+			
+		}
 	}
 }
 

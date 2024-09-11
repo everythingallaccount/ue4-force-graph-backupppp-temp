@@ -1,6 +1,7 @@
 #include "octreeeeeeeeee3.h"
 
 #include <queue>
+#include <stack>
 
 #include "utillllllssss.h"
 #include "Chaos/AABB.h"
@@ -273,6 +274,7 @@ void TraverseBFS(OctreeNode* root, OctreeCallback callback, float alpha, AKnowle
 	if (!root) return; // If the root is null, return immediately
 
 	std::queue<OctreeNode*> nodeQueue;
+	std::stack<int> myStack;
 	nodeQueue.push(root);
 	lll("tttttttttttttttt2");
 	while (!nodeQueue.empty())
@@ -328,7 +330,7 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 	else
 	{
 		// FVector center = CurrentBounds.Center;
-		FVector width = node->Extent;
+		FVector width = node->Extent * 2;
 
 
 		FVector dir = node->CenterOfMass - kn->GetActorLocation();
@@ -340,6 +342,14 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 		float theta2 = 0.81;
 		float distancemax = 1000000000;
 		long double distancemin = 1;
+		ll("-----------------");
+		ll("width: " + width.ToString());
+		ll("dir: " + dir.ToString());
+		ll("l: " + FString::SanitizeFloat(l));
+		ll("width.X * width.X / theta2: " + FString::SanitizeFloat(width.X * width.X / theta2));
+
+
+		
 		// if size of current box is less than distance between nodes
 		// This is used to stop recurring down the tree.
 		if (width.X * width.X / theta2 < l)
@@ -383,6 +393,7 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 					*
 					alpha / l;
 			}
+			ll("Early termination. ");
 			return true;
 		}
 
@@ -392,16 +403,13 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 			||
 			l >= distancemax)
 		{
+			ll("You need to return false here. ");
+			ll("l: " + FString::SanitizeFloat(l));
 			return false;
 		}
 
 
 		// For the function to reach here, it has to be a leaf node
-
-		lll("tttttttttttttttt222222545");
-
-
-		lll("tttttttttttttttt222222545-");
 
 		if (node->Data == nullptr)
 
@@ -424,12 +432,6 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 		bool bCond = node->Data->Node != kn;
 
 
-		lll("tttttttttttttttt2222225488888886");
-
-
-		lll("tttttttttttttttt2222225488888887");
-
-
 		if (
 			// The data is not same as the current node. 
 			bCond
@@ -439,7 +441,7 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 			//
 		)
 		{
-			lll("tttttttttttttttt222222546");
+			ll("Need to randomize something here.");
 
 			//print("IM LEAF");
 			if (dir.X)
@@ -466,7 +468,6 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 		}
 
 
-		lll("tttttttttttttttt222222547");
 
 		// do if (
 		// 			treeNode.data !== node
@@ -509,18 +510,17 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 		else
 		{
 			PointData* currentNode = node->Data;
-			lll("tttttttttttttttt222222548");
-
+		
 			if (
 				currentNode->Node != kn
 			)
 			{
-				lll("tttttttttttttttt222222549");
-
+				
 				float w = currentNode->Node->strength * alpha / l;
 				kn->velocity += dir * w;
+				ll("velocity: " + kn->velocity.ToString());
 			}
-			lll("tttttttttttttttt222222599999999999999");
+		
 		}
 		return true;
 	}
