@@ -99,8 +99,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
 	float initialRadius = 10;
 
-
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Attributes)
+	// Calculate many body force or not. 
+	bool manybody = false;
 
 protected:
 	// Called when the game starts or when spawned

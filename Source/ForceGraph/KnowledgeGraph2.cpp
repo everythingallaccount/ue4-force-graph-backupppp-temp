@@ -404,7 +404,14 @@ void AKnowledgeGraph::ApplyForces()
 
 	CalculatelinkAndatevelocity();
 
-	Calculatechargeforceandupdatevelocity();
+	if (manybody)
+	{
+		Calculatechargeforceandupdatevelocity();
+	}
+	else
+	{
+		
+	}
 }
 
 // NodeStrength AKnowledgeGraph::AddUpChildren(
