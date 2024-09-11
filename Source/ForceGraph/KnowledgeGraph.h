@@ -4,7 +4,7 @@
 
 #include "KnowledgeNode.h"
 #include "KnowledgeEdge.h"
-#include "GenericOctree333.h"
+// #include "GenericOctree333.h"
 #include "GameFramework/Actor.h"
 #include "Engine/World.h"
 #include "CoreMinimal.h"
@@ -15,85 +15,7 @@
 /**
  *
  */
-struct NodeStrength
-{
-	float strength;
-	FVector direction;
 
-	NodeStrength()
-	{
-		strength = 0.0;
-		direction = FVector(0, 0, 0);
-	}
-};
-
-struct FOctreeElement
-{
-	AKnowledgeNode* MyActor;
-
-	float strength = 0.0;
-
-	FBoxSphereBounds BoxSphereBounds;
-
-	int id;
-
-	FOctreeElement()
-	{
-		MyActor = nullptr;
-		BoxSphereBounds = FBoxSphereBounds(
-			FVector(0.0f, 0.0f, 0.0f),
-			FVector(1.0f, 1.0f, 1.0f),
-			1.0f
-		);
-	}
-};
-
-struct FOctreeSematics
-{
-	enum { MaxElementsPerLeaf = 1 }; // 16
-	enum { MinInclusiveElementsPerNode = 7 };
-
-	enum { MaxNodeDepth = 12 };
-
-	typedef TInlineAllocator<MaxElementsPerLeaf> ElementAllocator;
-	typedef TOctree3<FOctreeElement, FOctreeSematics> FOctree;
-
-	/**
-	* Get the bounding box of the provided octree element. In this case, the box
-	* is merely the point specified by the element.
-	*
-	* @param    Element    Octree element to get the bounding box for
-	*
-	* @return    Bounding box of the provided octree element
-	*/
-	FORCEINLINE static FBoxSphereBounds GetBoundingBox(const FOctreeElement& Element)
-	{
-		
-		return Element.BoxSphereBounds;
-	}
-
-	FORCEINLINE static bool AreElementsEqual(const FOctreeElement& A, const FOctreeElement& B)
-	{
-		return A.MyActor == B.MyActor;
-	}
-
-	static void SetElementId(FOctreeSematics::FOctree& thisOctree, const FOctreeElement& Element, FOctreeElementId3 Id);
-	//need to define this later
-
-	FORCEINLINE static void ApplyOffset(FOctreeElement& Element, FVector Offset)
-	{
-		FVector NewPostion = Element.MyActor->GetActorLocation() + Offset;
-		Element.MyActor->SetActorLocation(NewPostion);
-		Element.BoxSphereBounds.Origin = NewPostion;
-	}
-};
-
-class FSimpleOctree : public TOctree3<FOctreeElement, FOctreeSematics>
-{
-public:
-	FSimpleOctree(const FVector& InOrigin, float InExtent);
-	TMap<int32, FOctreeElementId3> all_elements; //to keep track of FOctreeElementId3
-};
 
 UCLASS()
 class FORCEGRAPH_API AKnowledgeGraph : public AActor
@@ -110,19 +32,19 @@ public:
 	void DoWork1();
 
 	void AddNode1(int32 id, AKnowledgeNode* kn);
-	void AddNode(int32 id, AKnowledgeNode* kn, FVector location);
+	// void AddNode(int32 id, AKnowledgeNode* kn, FVector location);
 	void AddEdge(int32 id, int32 source, int32 target);
-	void AddOctreeElement(const FOctreeElement& inNewOctreeElement);
+	// void AddOctreeElement(const FOctreeElement& inNewOctreeElement);
 	void InitNodes();
-	void InitOctree(const FBox& inNewBounds);
+	// void InitOctree(const FBox& inNewBounds);
 	void CalculateBiasstrengthOflinks();
-	void RemoveElement(int key);
+	// void RemoveElement(int key);
 	void ApplyForces();
-	void Accumulate();
-	NodeStrength AddUpChildren(const FSimpleOctree::FNode& node, FString node_id);
-	void ApplyManyBody(AKnowledgeNode* kn);
-	void FindManyBodyForce(AKnowledgeNode* kn, const FSimpleOctree::FNode& node,
-	                       const FOctreeNodeContext3 CurrentContext, FString node_id);
+	// void Accumulate();
+	// NodeStrength AddUpChildren(const FSimpleOctree::FNode& node, FString node_id);
+	// void ApplyManyBody(AKnowledgeNode* kn);
+	// void FindManyBodyForce(AKnowledgeNode* kn, const FSimpleOctree::FNode& node,
+	                       // const FOctreeNodeContext3 CurrentContext, FString node_id);
 	void tttttttttttt();
 
 
@@ -187,14 +109,14 @@ protected:
 private:
 	TMap<int32, AKnowledgeNode*> all_nodes;
 	TMap<int32, AKnowledgeEdge*> all_links;
-	TMap<FString, NodeStrength> octree_node_strengths;
+	// TMap<FString, NodeStrength> octree_node_strengths;
 	//    FVector GetWeightedDistance(FVector prev_loc);
 	float alphaTarget = 0;
 	float velocityDecay = 0.6;
 	float initialAngle = PI * (3 - sqrt(5));
 	bool init = false;
 
-	FSimpleOctree* OctreeData;
+	// FSimpleOctree* OctreeData;
 	OctreeNode* OctreeData2;
 
 

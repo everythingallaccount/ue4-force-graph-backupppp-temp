@@ -39,11 +39,11 @@ void AKnowledgeGraph::BeginPlay()
 
 	if (0)
 	{
-		InitOctree(FBox(
-				FVector(-200, -200, -200),
-				FVector(200, 200, 200)
-			)
-		);
+		// InitOctree(FBox(
+		// 		FVector(-200, -200, -200),
+		// 		FVector(200, 200, 200)
+		// 	)
+		// );
 	}
 	else
 	{
