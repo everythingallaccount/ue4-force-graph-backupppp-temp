@@ -142,6 +142,8 @@ void AKnowledgeGraph::Tick(float DeltaTime)
 				all_nodes[l->target]->GetActorLocation()
 			);
 		}
+
+		
 	}
 	else
 	{

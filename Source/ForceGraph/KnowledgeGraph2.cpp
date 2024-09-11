@@ -390,7 +390,7 @@ void AKnowledgeGraph::Calculatechargeforceandupdatevelocity()
 				ll("Finished traversing the tree based on this Actor Kn. ");
 			}
 			ll("Finished traversing");
-
+			delete OctreeData2;
 		}
 
 
@@ -412,6 +412,8 @@ void AKnowledgeGraph::ApplyForces()
 
 		Calculatechargeforceandupdatevelocity();
 		ll("Finish calculating charge.--------------------------------------");
+
+		
 	}
 	else
 	{
