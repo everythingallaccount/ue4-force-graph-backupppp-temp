@@ -119,7 +119,11 @@ void AKnowledgeGraph::Tick(float DeltaTime)
 			kn->SetActorLocation(
 				NewLocation
 			);
-
+			ll("FINAL POSITION! node: " + FString::FromInt(node.Key));
+			ll("position: " + kn->GetActorLocation().ToString());
+			ll("velocity: " + kn->velocity.ToString());
+			
+			
 
 			// kn->velocity *= 0; //reset velocities
 

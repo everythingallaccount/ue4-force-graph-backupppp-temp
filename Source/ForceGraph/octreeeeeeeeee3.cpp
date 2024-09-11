@@ -559,8 +559,8 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 			}
 		
 		}
-		ll("Returning true at the very end. ");
-		return true;
+		ll("Returning false at the very end. ");
+		return false;
 	}
 }
 
