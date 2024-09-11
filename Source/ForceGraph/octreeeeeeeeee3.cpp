@@ -381,7 +381,7 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 					*
 					node->Strength
 					*
-					std::ctype_base::alpha / l;
+					alpha / l;
 			}
 			return true;
 		}
@@ -417,7 +417,6 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 			}
 			else
 			{
-				std::cout << "Pointer is not null." << std::endl;
 			}
 		}
 
