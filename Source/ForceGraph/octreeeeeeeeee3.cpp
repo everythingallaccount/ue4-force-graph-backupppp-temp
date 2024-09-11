@@ -313,7 +313,10 @@ void TraverseBFS(OctreeNode* root, OctreeCallback callback, float alpha, AKnowle
 				OctreeNode* child = currentNode->Children[i];
 				if (child)
 				{
-					nodeQueue.push(child);
+					if(child->Data||!child->IsLeaf())
+					{
+						nodeQueue.push(child);
+					}
 				}
 			}	
 		}

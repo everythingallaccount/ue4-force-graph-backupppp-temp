@@ -385,9 +385,11 @@ void AKnowledgeGraph::Calculatechargeforceandupdatevelocity()
 			
 			for (auto& node : all_nodes)
 			{
+				ll("Traversed the tree based on this Actor Kn, nodekey: -------------------------------------" + FString::FromInt(node.Key));
 				TraverseBFS(OctreeData2,SampleCallback, alpha, node.Value);
+				ll("Finished traversing the tree based on this Actor Kn. ");
 			}
-			lll("Finished traversing");
+			ll("Finished traversing");
 
 		}
 
@@ -403,11 +405,13 @@ void AKnowledgeGraph::ApplyForces()
 
 	ll("Ready to calculate link.--------------------------------------");
 	CalculatelinkAndatevelocity();
+	ll("Finish calculating link.--------------------------------------");
 	if (manybody)
 	{
 		ll("Ready to calculate charge.--------------------------------------");
 
 		Calculatechargeforceandupdatevelocity();
+		ll("Finish calculating charge.--------------------------------------");
 	}
 	else
 	{
