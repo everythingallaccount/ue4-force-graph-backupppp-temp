@@ -355,7 +355,7 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 
 		FVector dir = node->CenterOfMass - kn->GetActorLocation();
 
-
+	
 		// Remember that direction is the sum of all the Actor locations of the elements in that note. 
 		float l = dir.Size() * dir.Size();
 
@@ -363,6 +363,9 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 		float distancemax = 1000000000;
 		long double distancemin = 1;
 		ll("-----------------");
+		// ll("bounds: " + node->Center.ToString() + " " + node->Extent.ToString());
+		ll("lower: " + (node->Center - node->Extent).ToString());
+		ll("upper: " + (node->Center + node->Extent).ToString());
 		ll("width: " + width.ToString());
 		ll("dir: " + dir.ToString());
 		ll("l: " + FString::SanitizeFloat(l));
@@ -377,28 +380,34 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 			//        print("GOING IN HERE");
 			if (l < distancemax)
 			{
-				if (dir.X == 0)
+				if (0)
 				{
-					// Assign a random value   // return (random() - 0.5) * 1e-6;
-					dir.X = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
-					// l += x * x;
-					l += dir.X * dir.X;
+					if (dir.X == 0)
+					{
+						// Assign a random value   // return (random() - 0.5) * 1e-6;
+						dir.X = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
+						// l += x * x;
+						l += dir.X * dir.X;
+					}
+					if (dir.Y == 0)
+					{
+						// Assign a random value   // return (random() - 0.5) * 1e-6;
+						dir.Y = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
+						// l += x * x;
+						l += dir.Y * dir.Y;
+					}
+					if (dir.Z == 0)
+					{
+						// Assign a random value   // return (random() - 0.5) * 1e-6;
+						dir.Z = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
+						// l += x * x;
+						l += dir.Z * dir.Z;
+					}
 				}
-				if (dir.Y == 0)
+				else
 				{
-					// Assign a random value   // return (random() - 0.5) * 1e-6;
-					dir.Y = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
-					// l += x * x;
-					l += dir.Y * dir.Y;
+					
 				}
-				if (dir.Z == 0)
-				{
-					// Assign a random value   // return (random() - 0.5) * 1e-6;
-					dir.Z = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
-					// l += x * x;
-					l += dir.Z * dir.Z;
-				}
-
 
 				if (l < distancemin)
 					l = sqrt(distancemin * l);
@@ -412,6 +421,7 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 					node->Strength
 					*
 					alpha / l;
+				ll("velocity: " + kn->velocity.ToString());
 			}
 			ll("Early termination. ");
 			return true;
@@ -464,23 +474,30 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 			ll("Need to randomize something here.");
 
 			//print("IM LEAF");
-			if (dir.X)
+			if (0)
 			{
-				// (random() - 0.5) * 1e-6;
-				dir.X = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
-				l += dir.X * dir.X;
+				if (dir.X)
+				{
+					// (random() - 0.5) * 1e-6;
+					dir.X = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
+					l += dir.X * dir.X;
+				}
+				if (dir.Y)
+				{
+					// (random() - 0.5) * 1e-6;
+					dir.Y = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
+					l += dir.Y * dir.Y;
+				}
+				if (dir.Z)
+				{
+					// (random() - 0.5) * 1e-6;
+					dir.Z = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
+					l += dir.Z * dir.Z;
+				}
 			}
-			if (dir.Y)
+			else
 			{
-				// (random() - 0.5) * 1e-6;
-				dir.Y = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
-				l += dir.Y * dir.Y;
-			}
-			if (dir.Z)
-			{
-				// (random() - 0.5) * 1e-6;
-				dir.Z = (FMath::RandRange(0, 1) - 0.5f) * 1e-6;
-				l += dir.Z * dir.Z;
+				
 			}
 			// if (l < distanceMin2) l = Math.sqrt(distanceMin2 * l);
 			if (l < distancemin)
@@ -542,6 +559,7 @@ bool SampleCallback(OctreeNode* node, AKnowledgeNode* kn, float alpha)
 			}
 		
 		}
+		ll("Returning true at the very end. ");
 		return true;
 	}
 }
