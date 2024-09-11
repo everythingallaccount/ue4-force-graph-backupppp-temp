@@ -273,15 +273,15 @@ void TraverseBFS(OctreeNode* root, OctreeCallback callback, float alpha, AKnowle
 	// return;
 	if (!root) return; // If the root is null, return immediately
 
-	std::queue<OctreeNode*> nodeQueue;
-	std::stack<int> myStack;
+	// std::queue<OctreeNode*> nodeQueue;
+	std::stack<OctreeNode*> nodeQueue;
 	nodeQueue.push(root);
 	lll("tttttttttttttttt2");
 	while (!nodeQueue.empty())
 	{
 		lll("tttttttttttttttt3");
 
-		OctreeNode* currentNode = nodeQueue.front();
+		OctreeNode* currentNode = nodeQueue.top();
 		nodeQueue.pop();
 		lll("tttttttttttttttt6");
 
@@ -294,14 +294,31 @@ void TraverseBFS(OctreeNode* root, OctreeCallback callback, float alpha, AKnowle
 			continue;
 		}
 
-		// Otherwise, enqueue all non-null children
-		for (OctreeNode* child : currentNode->Children)
+		if (0)
 		{
-			if (child)
+			// Otherwise, enqueue all non-null children
+			for (OctreeNode* child : currentNode->Children)
 			{
-				nodeQueue.push(child);
+				if (child)
+				{
+					nodeQueue.push(child);
+				}
 			}
 		}
+		else
+		{
+			// Reverse enqueue all non-null children using TArray
+			for (int i = currentNode->Children.Num() - 1; i >= 0; --i)
+			{
+				OctreeNode* child = currentNode->Children[i];
+				if (child)
+				{
+					nodeQueue.push(child);
+				}
+			}	
+		}
+
+		
 	}
 }
 
