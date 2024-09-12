@@ -30,11 +30,27 @@ OctreeNode::OctreeNode()
 
 OctreeNode::~OctreeNode()
 {
-	for (auto* child : Children)
-	{
+	for (auto child : Children) {
 		delete child;
 	}
-	delete Data;
+	Children.Empty(); // Clear the TArray, not strictly necessary since the node is being destroyed
+
+	// Now clean up the linked list in `Data`
+	PointData* current = Data;
+	if (0)
+	{
+		while (current != nullptr) {
+			delete current;
+			PointData* next = current->Next;
+			current = next;
+		}
+	}
+	else
+	{
+		delete current;
+	}
+	Data = nullptr; // Reset pointer to nullptr after deletion
+
 }
 
 bool OctreeNode::IsLeaf() const
